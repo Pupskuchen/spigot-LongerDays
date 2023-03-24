@@ -1,6 +1,5 @@
 # @plugin LongerDays
 # @version 1.0.9
-# @author foncused
 
 # Day cycle in minutes
 day: 30

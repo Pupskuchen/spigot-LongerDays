@@ -1,4 +1,5 @@
 name: LongerDays
 main: me.foncused.longerdays.LongerDays
 version: 1.0.9
-author: foncused
+authors: [foncused, mrgeneralq, pupskuchen]
+website: https://github.com/Pupskuchen/spigot-LongerDays
