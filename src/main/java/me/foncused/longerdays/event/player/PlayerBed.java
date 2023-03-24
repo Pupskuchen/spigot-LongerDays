@@ -11,54 +11,52 @@ import org.bukkit.event.player.PlayerBedLeaveEvent;
 
 public class PlayerBed implements Listener {
 
-	private final ConfigManager configManager;
-	private int sleeping;
+    private final ConfigManager configManager;
+    private int sleeping;
 
-	public PlayerBed(ConfigManager configManager) {
-		this.configManager = configManager;
-	}
+    public PlayerBed(ConfigManager configManager) {
+        this.configManager = configManager;
+    }
 
-	@EventHandler
-	public void onPlayerBedEnter(final PlayerBedEnterEvent event) {
-		this.sleeping++;
+    @EventHandler
+    public void onPlayerBedEnter(final PlayerBedEnterEvent event) {
+        this.sleeping++;
 
-		//do nothing if night skipping is disabled
-		if(!configManager.isNightSkippingEnabled()){
-			return;
-		}
+        // do nothing if night skipping is disabled
+        if (!configManager.isNightSkippingEnabled()) {
+            return;
+        }
 
-		final World world = event.getPlayer().getWorld();
+        final World world = event.getPlayer().getWorld();
 
-		int percentage;
+        int percentage;
 
+        if (!configManager.isPercentageEnabled()) {
+            try {
+                percentage = world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
+            } catch (Exception e) {
+                LongerDaysUtil.consoleWarning("Could not fetch game-rule value 'playersSleepingPercentage!" +
+                        " Please go to the config.yml and enable players-sleeping-percentage");
+                return;
+            }
+        }
 
-		if(!configManager.isPercentageEnabled()){
+        percentage = configManager.getPercentage();
+        if (LongerDaysUtil.isNight(world)
+                && event.getBedEnterResult() == PlayerBedEnterEvent.BedEnterResult.OK
+                && (this.sleeping / world.getPlayers().size()) * 100 >= percentage) {
+            this.sleeping = 0;
+            world.setTime(0);
+            event.setCancelled(true);
+            LongerDaysUtil.console("The night has been skipped by sleeping");
+        }
+    }
 
-			try{
-				percentage = world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
-			} catch (Exception e) {
-				LongerDaysUtil.consoleWarning("Could not fetch game-rule value 'playersSleepingPercentage!" +
-						" Please go to the config.yml and enable players-sleeping-percentage");
-				return;
-			}
-		}
-
-		percentage = configManager.getPercentage();
-		if(LongerDaysUtil.isNight(world)
-				&& event.getBedEnterResult() == PlayerBedEnterEvent.BedEnterResult.OK
-				&& (this.sleeping / world.getPlayers().size()) * 100 >= percentage) {
-			this.sleeping = 0;
-			world.setTime(0);
-			event.setCancelled(true);
-			LongerDaysUtil.console("The night has been skipped by sleeping");
-		}
-	}
-
-	@EventHandler
-	public void onPlayerBedLeave(final PlayerBedLeaveEvent event) {
-		if(this.sleeping > 0) {
-			this.sleeping--;
-		}
-	}
+    @EventHandler
+    public void onPlayerBedLeave(final PlayerBedLeaveEvent event) {
+        if (this.sleeping > 0) {
+            this.sleeping--;
+        }
+    }
 
 }
