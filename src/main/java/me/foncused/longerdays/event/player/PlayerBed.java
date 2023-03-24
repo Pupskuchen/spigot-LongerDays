@@ -1,6 +1,5 @@
 package me.foncused.longerdays.event.player;
 
-import me.foncused.longerdays.LongerDays;
 import me.foncused.longerdays.config.ConfigManager;
 import me.foncused.longerdays.util.LongerDaysUtil;
 import org.bukkit.GameRule;
