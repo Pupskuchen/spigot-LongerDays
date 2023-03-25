@@ -1,5 +1,5 @@
 # @plugin TimeControl
-# @version 1.0.10.beta.1
+# @version 1.0.10.beta.2
 
 # Day cycle in minutes
 day: 30
@@ -15,7 +15,8 @@ worlds:
 night-skipping:
   enabled: false
 
-# If your server doesn't have the 'playersSleepingPercentage' game-rule, you can still control the percentage
+# If your server doesn't have the 'playersSleepingPercentage' game rule,
+# you can still control the percentage by enabling this
 players-sleeping-percentage:
   enabled: false
   percentage: 50
