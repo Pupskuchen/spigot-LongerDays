@@ -1,20 +1,28 @@
 package net.pupskuchen.timecontrol.event.player;
 
-import org.bukkit.GameRule;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerBedLeaveEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import net.pupskuchen.timecontrol.config.ConfigManager;
-import net.pupskuchen.timecontrol.util.TimeControlUtil;
+import net.pupskuchen.timecontrol.util.NightSkipper;
 
 public class PlayerBed implements Listener {
 
+    private final JavaPlugin plugin;
     private final ConfigManager configManager;
+    private final Map<String, NightSkipper> worldSkippers;
 
-    public PlayerBed(ConfigManager configManager) {
+    public PlayerBed(final JavaPlugin plugin, final ConfigManager configManager) {
+        this.plugin = plugin;
         this.configManager = configManager;
+        this.worldSkippers = new HashMap<>();
     }
 
     @EventHandler
@@ -28,27 +36,30 @@ public class PlayerBed implements Listener {
         }
 
         final World world = event.getPlayer().getWorld();
-        final int sleeping = (int) world.getPlayers().stream().filter((player) -> player.isSleeping()).count() + 1;
+        final String worldName = world.getName();
+        NightSkipper skipper = worldSkippers.get(worldName);
 
-        int percentage;
-
-        if (!configManager.isPercentageEnabled()) {
-            try {
-                percentage = world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
-            } catch (Exception e) {
-                TimeControlUtil.consoleWarning("Could not fetch game-rule value 'playersSleepingPercentage!" +
-                        " Please go to the config.yml and enable players-sleeping-percentage");
-                return;
-            }
+        if (skipper == null) {
+            skipper = new NightSkipper(plugin, configManager, world);
+            this.worldSkippers.put(worldName, skipper);
         }
 
-        percentage = configManager.getPercentage();
-
-        if ((sleeping / world.getPlayers().size()) * 100 >= percentage) {
-            world.setTime(1000);
-            event.setCancelled(true);
-            TimeControlUtil.console("The night has been skipped by sleeping");
-        }
+        skipper.restartGuard();
     }
 
+    @EventHandler
+    public void onPlayerBedLeave(final PlayerBedLeaveEvent event) {
+        if (!configManager.isNightSkippingEnabled()) {
+            return;
+        }
+
+        final String worldName = event.getPlayer().getWorld().getName();
+        final NightSkipper skipper = worldSkippers.get(worldName);
+
+        if (skipper == null) {
+            return;
+        }
+
+        skipper.skipNight();
+    }
 }

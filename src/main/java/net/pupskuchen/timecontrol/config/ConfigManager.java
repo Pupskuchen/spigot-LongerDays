@@ -2,7 +2,7 @@ package net.pupskuchen.timecontrol.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import net.pupskuchen.timecontrol.util.TimeControlUtil;
+import net.pupskuchen.timecontrol.util.LogUtil;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ public class ConfigManager {
 
     private boolean nightSkippingEnabled;
     private boolean percentageEnabled;
-    private int percentage;
+    private int configPercentage;
 
     public ConfigManager(final FileConfiguration config) {
         this.config = config;
@@ -30,22 +30,22 @@ public class ConfigManager {
         final int day = this.config.getInt("day", 30);
         if (day <= 0) {
             this.day = 30;
-            TimeControlUtil.consoleWarning("Set day cycle to " + day + " minutes is not safe, reverting to default...");
+            LogUtil.consoleWarning("Set day cycle to " + day + " minutes is not safe, reverting to default...");
         } else {
             this.day = day;
         }
-        TimeControlUtil.console("Set day cycle to " + this.day + " minutes");
+        LogUtil.console("Set day cycle to " + this.day + " minutes");
 
         // night
         final int night = this.config.getInt("night", 5);
         if (night <= 0) {
             this.night = 5;
-            TimeControlUtil
+            LogUtil
                     .consoleWarning("Set night cycle to " + night + " minutes is not safe, reverting to default...");
         } else {
             this.night = night;
         }
-        TimeControlUtil.console("Set night cycle to " + this.night + " minutes");
+        LogUtil.console("Set night cycle to " + this.night + " minutes");
 
         // worlds
         final List<String> worlds = this.config.getStringList("worlds");
@@ -54,7 +54,7 @@ public class ConfigManager {
         this.worlds = Collections.unmodifiableSet(this.worlds);
 
         percentageEnabled = this.config.getBoolean("players-sleeping-percentage.enabled");
-        percentage = this.config.getInt("players-sleeping-percentage.percentage");
+        configPercentage = this.config.getInt("players-sleeping-percentage.percentage");
         nightSkippingEnabled = this.config.getBoolean("night-skipping.enabled");
     }
 
@@ -74,8 +74,8 @@ public class ConfigManager {
         return percentageEnabled;
     }
 
-    public int getPercentage() {
-        return percentage;
+    public int getConfigPercentage() {
+        return configPercentage;
     }
 
     public boolean isNightSkippingEnabled() {

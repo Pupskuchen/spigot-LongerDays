@@ -8,7 +8,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import net.pupskuchen.timecontrol.config.ConfigManager;
 import net.pupskuchen.timecontrol.event.player.PlayerBed;
 import net.pupskuchen.timecontrol.runnable.Runnable;
-import net.pupskuchen.timecontrol.util.TimeControlUtil;
+import net.pupskuchen.timecontrol.util.LogUtil;
 
 public class TimeControl extends JavaPlugin {
 
@@ -39,7 +39,7 @@ public class TimeControl extends JavaPlugin {
     }
 
     private void registerEvents() {
-        this.getServer().getPluginManager().registerEvents(new PlayerBed(getConfigManager()), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerBed(this, getConfigManager()), this);
     }
 
     private void registerRunnables() {
@@ -56,8 +56,8 @@ public class TimeControl extends JavaPlugin {
                 .filter(world -> this.cm.getWorlds().contains(world.getName()))
                 .forEach(world -> {
                     world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, value);
-                    TimeControlUtil.console(
-                            "Setting GameRule.DO_DAYLIGHT_CYCLE to " + value + " for world '" + world.getName() + "'");
+                    LogUtil.console(String.format("Setting game rule \"%s\" to \"%b\" for world \"%s\"",
+                            GameRule.DO_DAYLIGHT_CYCLE.getName(), value, world.getName()));
                 });
     }
 
