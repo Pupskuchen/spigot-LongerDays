@@ -1,17 +1,16 @@
-package me.foncused.longerdays;
+package net.pupskuchen.timecontrol;
 
-import me.foncused.longerdays.config.ConfigManager;
-import me.foncused.longerdays.event.player.PlayerBed;
-import me.foncused.longerdays.runnable.Runnable;
-import me.foncused.longerdays.util.LongerDaysUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class LongerDays extends JavaPlugin {
+import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.event.player.PlayerBed;
+import net.pupskuchen.timecontrol.runnable.Runnable;
+import net.pupskuchen.timecontrol.util.TimeControlUtil;
 
-    public static final String PREFIX = "[LongerDays] ";
+public class TimeControl extends JavaPlugin {
 
     private ConfigManager cm;
 
@@ -57,7 +56,7 @@ public class LongerDays extends JavaPlugin {
                 .filter(world -> this.cm.getWorlds().contains(world.getName()))
                 .forEach(world -> {
                     world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, value);
-                    LongerDaysUtil.console(
+                    TimeControlUtil.console(
                             "Setting GameRule.DO_DAYLIGHT_CYCLE to " + value + " for world '" + world.getName() + "'");
                 });
     }

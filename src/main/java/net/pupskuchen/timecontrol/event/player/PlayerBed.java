@@ -1,12 +1,13 @@
-package me.foncused.longerdays.event.player;
+package net.pupskuchen.timecontrol.event.player;
 
-import me.foncused.longerdays.config.ConfigManager;
-import me.foncused.longerdays.util.LongerDaysUtil;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
+
+import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.util.TimeControlUtil;
 
 public class PlayerBed implements Listener {
 
@@ -35,7 +36,7 @@ public class PlayerBed implements Listener {
             try {
                 percentage = world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
             } catch (Exception e) {
-                LongerDaysUtil.consoleWarning("Could not fetch game-rule value 'playersSleepingPercentage!" +
+                TimeControlUtil.consoleWarning("Could not fetch game-rule value 'playersSleepingPercentage!" +
                         " Please go to the config.yml and enable players-sleeping-percentage");
                 return;
             }
@@ -46,7 +47,7 @@ public class PlayerBed implements Listener {
         if ((sleeping / world.getPlayers().size()) * 100 >= percentage) {
             world.setTime(1000);
             event.setCancelled(true);
-            LongerDaysUtil.console("The night has been skipped by sleeping");
+            TimeControlUtil.console("The night has been skipped by sleeping");
         }
     }
 

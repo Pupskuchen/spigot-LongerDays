@@ -3,12 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>me.foncused</groupId>
-    <artifactId>longerdays</artifactId>
+    <groupId>net.pupskuchen</groupId>
+    <artifactId>timecontrol</artifactId>
     <version>1.0.9</version>
     <packaging>jar</packaging>
-    <name>LongerDays</name>
-    <url>https://github.com/Pupskuchen/spigot-LongerDays</url>
+    <name>TimeControl</name>
+    <url>https://github.com/Pupskuchen/spigot-TimeControl</url>
     <build>
         <finalName>${project.name}</finalName>
         <sourceDirectory>src/main/java/</sourceDirectory>
@@ -43,7 +43,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>me.foncused.longerdays.LongerDays</mainClass>
+                            <mainClass>net.pupskuchen.timecontrol.TimeControl</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
