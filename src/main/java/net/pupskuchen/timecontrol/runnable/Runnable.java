@@ -1,21 +1,22 @@
-package me.foncused.longerdays.runnable;
+package net.pupskuchen.timecontrol.runnable;
 
-import me.foncused.longerdays.LongerDays;
-import me.foncused.longerdays.config.ConfigManager;
-import me.foncused.longerdays.util.LongerDaysUtil;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import net.pupskuchen.timecontrol.TimeControl;
+import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.util.TimeControlUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Runnable {
 
-    private final LongerDays plugin;
+    private final TimeControl plugin;
     private final ConfigManager cm;
     private final Map<String, Long> counts;
 
-    public Runnable(final LongerDays plugin) {
+    public Runnable(final TimeControl plugin) {
         this.plugin = plugin;
         this.cm = this.plugin.getConfigManager();
         this.counts = new HashMap<>();
@@ -26,16 +27,16 @@ public class Runnable {
             @Override
             public void run() {
                 final long time = world.getTime();
-                if (LongerDaysUtil.isDay(world)) {
+                if (TimeControlUtil.isDay(world)) {
                     setTime(world, convertMinsToTicks(cm.getDay()));
-                } else if (LongerDaysUtil.isNight(world)) {
+                } else if (TimeControlUtil.isNight(world)) {
                     setTime(world, convertMinsToTicks(cm.getNight()));
                 } else {
-                    LongerDaysUtil.consoleWarning(world.getName() + " world time " + time + " is impossible");
+                    TimeControlUtil.consoleWarning(world.getName() + " world time " + time + " is impossible");
                 }
             }
         }.runTaskTimer(this.plugin, 0, 1);
-        LongerDaysUtil.console("Running day and night cycles for world '" + world.getName() + "'");
+        TimeControlUtil.console("Running day and night cycles for world '" + world.getName() + "'");
     }
 
     private void setTime(final World world, final long val) {

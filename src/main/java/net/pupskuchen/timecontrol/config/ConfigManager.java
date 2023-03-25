@@ -1,7 +1,8 @@
-package me.foncused.longerdays.config;
+package net.pupskuchen.timecontrol.config;
 
-import me.foncused.longerdays.util.LongerDaysUtil;
 import org.bukkit.configuration.file.FileConfiguration;
+
+import net.pupskuchen.timecontrol.util.TimeControlUtil;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,22 +30,22 @@ public class ConfigManager {
         final int day = this.config.getInt("day", 30);
         if (day <= 0) {
             this.day = 30;
-            LongerDaysUtil.consoleWarning("Set day cycle to " + day + " minutes is not safe, reverting to default...");
+            TimeControlUtil.consoleWarning("Set day cycle to " + day + " minutes is not safe, reverting to default...");
         } else {
             this.day = day;
         }
-        LongerDaysUtil.console("Set day cycle to " + this.day + " minutes");
+        TimeControlUtil.console("Set day cycle to " + this.day + " minutes");
 
         // night
         final int night = this.config.getInt("night", 5);
         if (night <= 0) {
             this.night = 5;
-            LongerDaysUtil
+            TimeControlUtil
                     .consoleWarning("Set night cycle to " + night + " minutes is not safe, reverting to default...");
         } else {
             this.night = night;
         }
-        LongerDaysUtil.console("Set night cycle to " + this.night + " minutes");
+        TimeControlUtil.console("Set night cycle to " + this.night + " minutes");
 
         // worlds
         final List<String> worlds = this.config.getStringList("worlds");
