@@ -1,6 +1,6 @@
 name: TimeControl
 main: net.pupskuchen.timecontrol.TimeControl
-version: 1.0.9
+version: 1.0.10.beta.1
 api-version: 1.19
 authors: [foncused, mrgeneralq, pupskuchen]
 website: https://github.com/Pupskuchen/spigot-TimeControl
