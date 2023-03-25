@@ -46,7 +46,7 @@ public class PlayerBed implements Listener {
                 && event.getBedEnterResult() == PlayerBedEnterEvent.BedEnterResult.OK
                 && (this.sleeping / world.getPlayers().size()) * 100 >= percentage) {
             this.sleeping = 0;
-            world.setTime(0);
+            world.setTime(1000);
             event.setCancelled(true);
             LongerDaysUtil.console("The night has been skipped by sleeping");
         }
