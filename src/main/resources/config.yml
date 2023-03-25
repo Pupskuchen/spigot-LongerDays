@@ -1,5 +1,5 @@
 # @plugin TimeControl
-# @version 1.0.9
+# @version 1.0.10.beta.1
 
 # Day cycle in minutes
 day: 30
