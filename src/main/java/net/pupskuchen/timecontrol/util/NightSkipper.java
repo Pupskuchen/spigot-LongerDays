@@ -1,7 +1,10 @@
 package net.pupskuchen.timecontrol.util;
 
+import java.util.List;
+
 import org.bukkit.GameRule;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.pupskuchen.timecontrol.config.ConfigManager;
@@ -41,21 +44,22 @@ public class NightSkipper {
 
                 return SKIP_PERCENTAGE_FALLBACK;
             }
-        } else {
-            return configManager.getConfigPercentage();
         }
+
+        return configManager.getConfigPercentage();
     }
 
     private boolean skipThresholdMet() {
         final int skipPercentage = getSkipPercentage();
-        final int sleeping = (int) world.getPlayers().stream().filter((player) -> player.isSleeping()).count();
-        final float sleepingPercentage = ((float) sleeping / world.getPlayers().size()) * 100;
+        final List<Player> players = world.getPlayers();
+        final int sleeping = (int) players.stream().filter((player) -> player.isSleeping()).count();
+        final float sleepingPercentage = ((float) sleeping / players.size()) * 100;
 
         return sleepingPercentage >= skipPercentage;
     }
 
     private boolean shouldSkipNight() {
-        if (!skipGuard.isSkippable() || TimeUtil.isDay(world)) {
+        if (!skipGuard.isSkippable() || !TimeUtil.sleepAllowed(world)) {
             return false;
         }
 
@@ -73,8 +77,10 @@ public class NightSkipper {
             return;
         }
 
-        world.setTime(TimeUtil.DAY_START);
+        final int wakeTime = TimeUtil.getWakeTime(world);
+
+        world.setTime(wakeTime);
         LogUtil
-                .console(String.format("The night has been skipped by sleeping (set time to %d)", TimeUtil.DAY_START));
+                .console(String.format("The night has been skipped by sleeping (set time to %d)", wakeTime));
     }
 }
