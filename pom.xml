@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.pupskuchen</groupId>
     <artifactId>timecontrol</artifactId>
-    <version>1.0.10.beta.2</version>
+    <version>1.0.10.beta.3</version>
     <packaging>jar</packaging>
     <name>TimeControl</name>
     <url>https://github.com/Pupskuchen/spigot-TimeControl</url>
