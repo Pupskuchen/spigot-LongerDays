@@ -1,5 +1,5 @@
 # @plugin TimeControl
-# @version 1.0.10.beta.2
+# @version ${project.version}
 
 # Day cycle in minutes
 day: 30

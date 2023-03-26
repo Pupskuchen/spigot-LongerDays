@@ -21,4 +21,4 @@ If you run into any server performance problems, or if the plugin is not working
 
 ## Links:
 
--   Spigot: TBD?
+-   Spigot: https://www.spigotmc.org/resources/timecontrol.108829/
