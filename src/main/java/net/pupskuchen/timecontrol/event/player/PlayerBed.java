@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.pupskuchen.timecontrol.config.ConfigManager;
-import net.pupskuchen.timecontrol.util.NightSkipper;
+import net.pupskuchen.timecontrol.nightskipping.NightSkipper;
 
 public class PlayerBed implements Listener {
 

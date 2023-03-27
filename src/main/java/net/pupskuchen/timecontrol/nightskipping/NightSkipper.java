@@ -1,4 +1,4 @@
-package net.pupskuchen.timecontrol.util;
+package net.pupskuchen.timecontrol.nightskipping;
 
 import java.util.List;
 
@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.util.LogUtil;
+import net.pupskuchen.timecontrol.util.TimeUtil;
 
 public class NightSkipper {
     private static final int SKIP_PERCENTAGE_FALLBACK = 100;

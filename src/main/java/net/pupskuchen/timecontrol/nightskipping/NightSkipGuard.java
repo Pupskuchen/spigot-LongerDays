@@ -1,4 +1,4 @@
-package net.pupskuchen.timecontrol.util;
+package net.pupskuchen.timecontrol.nightskipping;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
