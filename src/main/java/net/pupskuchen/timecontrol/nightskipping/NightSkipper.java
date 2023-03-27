@@ -82,7 +82,6 @@ public class NightSkipper {
         final int wakeTime = TimeUtil.getWakeTime(world);
 
         world.setTime(wakeTime);
-        LogUtil
-                .console(String.format("The night has been skipped by sleeping (set time to %d)", wakeTime));
+        LogUtil.console("The night has been skipped by sleeping");
     }
 }
