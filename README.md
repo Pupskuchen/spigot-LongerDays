@@ -1,6 +1,6 @@
 # TimeControl
 
-"TimeControl" is a fork of [foncused's "LongerDays"](https://github.com/foncused/LongerDays).
+TimeControl is a fork of [foncused's "LongerDays"](https://github.com/foncused/LongerDays).
 It allows adjustment of the durations of the day and night cycles on your Spigot server.
 
 ## Installation:
