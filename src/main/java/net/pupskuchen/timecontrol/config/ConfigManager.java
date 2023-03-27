@@ -1,17 +1,20 @@
 package net.pupskuchen.timecontrol.config;
 
-import org.bukkit.configuration.file.FileConfiguration;
-
-import net.pupskuchen.timecontrol.util.LogUtil;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.bukkit.configuration.file.FileConfiguration;
+
+import net.pupskuchen.timecontrol.TimeControl;
+import net.pupskuchen.timecontrol.util.TCLogger;
+
 public class ConfigManager {
 
     private final FileConfiguration config;
+    private final TCLogger logger;
+
     private int day;
     private int night;
     private Set<String> worlds;
@@ -19,35 +22,32 @@ public class ConfigManager {
     private boolean nightSkippingEnabled;
     private boolean percentageEnabled;
     private int configPercentage;
+    private boolean debug = false;
 
-    public ConfigManager(final FileConfiguration config) {
-        this.config = config;
+    public ConfigManager(final TimeControl plugin) {
+        this.config = plugin.getConfig();
+        this.logger = plugin.getTCLogger();
     }
 
     public void validate() {
-
-        // day
         final int day = this.config.getInt("day", 30);
         if (day <= 0) {
             this.day = 30;
-            LogUtil.consoleWarning("Set day cycle to " + day + " minutes is not safe, reverting to default...");
+            logger.warn("Setting day cycle to %d minutes is not safe", day);
         } else {
             this.day = day;
         }
-        LogUtil.console("Set day cycle to " + this.day + " minutes");
+        logger.info("Set day cycle to %d minutes", this.day);
 
-        // night
         final int night = this.config.getInt("night", 5);
         if (night <= 0) {
             this.night = 5;
-            LogUtil
-                    .consoleWarning("Set night cycle to " + night + " minutes is not safe, reverting to default...");
+            logger.warn("Setting night cycle to %d minutes is not safe", night);
         } else {
             this.night = night;
         }
-        LogUtil.console("Set night cycle to " + this.night + " minutes");
+        logger.info("Set night cycle to %d minutes", this.night);
 
-        // worlds
         final List<String> worlds = this.config.getStringList("worlds");
         this.worlds = new HashSet<>();
         this.worlds.addAll(worlds);
@@ -56,6 +56,8 @@ public class ConfigManager {
         percentageEnabled = this.config.getBoolean("players-sleeping-percentage.enabled");
         configPercentage = this.config.getInt("players-sleeping-percentage.percentage");
         nightSkippingEnabled = this.config.getBoolean("night-skipping.enabled");
+
+        debug = this.config.getBoolean("debug", false);
     }
 
     public int getDay() {
@@ -80,5 +82,9 @@ public class ConfigManager {
 
     public boolean isNightSkippingEnabled() {
         return nightSkippingEnabled;
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 }

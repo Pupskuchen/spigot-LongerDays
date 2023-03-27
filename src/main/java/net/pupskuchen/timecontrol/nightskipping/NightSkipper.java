@@ -5,10 +5,10 @@ import java.util.List;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
+import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigManager;
-import net.pupskuchen.timecontrol.util.LogUtil;
+import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TimeUtil;
 
 public class NightSkipper {
@@ -17,11 +17,13 @@ public class NightSkipper {
     private final World world;
     private final ConfigManager configManager;
     private final NightSkipGuard skipGuard;
+    private final TCLogger logger;
 
-    public NightSkipper(final JavaPlugin plugin, final ConfigManager configManager, final World world) {
+    public NightSkipper(final TimeControl plugin, final ConfigManager configManager, final World world) {
         this.world = world;
         this.configManager = configManager;
         this.skipGuard = new NightSkipGuard(plugin);
+        this.logger = plugin.getTCLogger();
     }
 
     public void restartGuard() {
@@ -39,10 +41,9 @@ public class NightSkipper {
             try {
                 return world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
             } catch (Exception e) {
-                LogUtil.consoleWarning("Could not fetch game-rule value 'playersSleepingPercentage!" +
+                logger.warn("Could not fetch game-rule value 'playersSleepingPercentage!" +
                         " Please enable players-sleeping-percentage in the plugin configuration.");
-                LogUtil
-                        .consoleWarning(String.format("Using fallback percentage of %d %%", SKIP_PERCENTAGE_FALLBACK));
+                logger.warn("Using fallback percentage of %d %%", SKIP_PERCENTAGE_FALLBACK);
 
                 return SKIP_PERCENTAGE_FALLBACK;
             }
@@ -82,6 +83,6 @@ public class NightSkipper {
         final int wakeTime = TimeUtil.getWakeTime(world);
 
         world.setTime(wakeTime);
-        LogUtil.console("The night has been skipped by sleeping");
+        logger.info("The night has been skipped by sleeping");
     }
 }

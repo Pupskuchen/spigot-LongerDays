@@ -1,4 +1,4 @@
-name: TimeControl
+name: ${project.name}
 main: net.pupskuchen.timecontrol.TimeControl
 version: ${project.version}
 api-version: 1.19

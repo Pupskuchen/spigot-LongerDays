@@ -8,18 +8,20 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TickUtil;
-import net.pupskuchen.timecontrol.util.LogUtil;
 import net.pupskuchen.timecontrol.util.TimeUtil;
 
 public class Runnable {
 
     private final TimeControl plugin;
+    private final TCLogger logger;
     private final ConfigManager cm;
     private final Map<String, Long> counts;
 
     public Runnable(final TimeControl plugin) {
         this.plugin = plugin;
+        this.logger = plugin.getTCLogger();
         this.cm = this.plugin.getConfigManager();
         this.counts = new HashMap<>();
     }
@@ -40,7 +42,7 @@ public class Runnable {
             }
         }.runTaskTimer(this.plugin, 0, 1);
 
-        LogUtil.console("Running day and night cycles for world '" + world.getName() + "'");
+        logger.info("Running day and night cycles for world \"%s\"", world.getName());
     }
 
     private void setTime(final World world, final String worldName, final double ratio) {

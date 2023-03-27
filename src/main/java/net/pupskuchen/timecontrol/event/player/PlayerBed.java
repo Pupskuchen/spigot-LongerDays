@@ -8,19 +8,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 
+import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigManager;
 import net.pupskuchen.timecontrol.nightskipping.NightSkipper;
+import net.pupskuchen.timecontrol.util.TCLogger;
 
 public class PlayerBed implements Listener {
 
-    private final JavaPlugin plugin;
+    private final TimeControl plugin;
+    private final TCLogger logger;
     private final ConfigManager configManager;
     private final Map<String, NightSkipper> worldSkippers;
 
-    public PlayerBed(final JavaPlugin plugin, final ConfigManager configManager) {
+    public PlayerBed(final TimeControl plugin, final ConfigManager configManager) {
         this.plugin = plugin;
+        this.logger = plugin.getTCLogger();
         this.configManager = configManager;
         this.worldSkippers = new HashMap<>();
     }
@@ -39,6 +42,8 @@ public class PlayerBed implements Listener {
         final String worldName = world.getName();
         NightSkipper skipper = worldSkippers.get(worldName);
 
+        logger.debug("%s has entered a bed at %d", event.getPlayer().getName(), world.getTime());
+
         if (skipper == null) {
             skipper = new NightSkipper(plugin, configManager, world);
             this.worldSkippers.put(worldName, skipper);
@@ -52,6 +57,8 @@ public class PlayerBed implements Listener {
         if (!configManager.isNightSkippingEnabled()) {
             return;
         }
+
+        logger.debug("%s has left a bed at %d", event.getPlayer().getName(), event.getPlayer().getWorld().getTime());
 
         final String worldName = event.getPlayer().getWorld().getName();
         final NightSkipper skipper = worldSkippers.get(worldName);

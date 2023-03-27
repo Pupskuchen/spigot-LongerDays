@@ -1,5 +1,4 @@
-# @plugin TimeControl
-# @version ${project.version}
+# ${project.name} ${project.version}
 
 # Day cycle in minutes
 day: 30
@@ -20,4 +19,3 @@ night-skipping:
 players-sleeping-percentage:
   enabled: false
   percentage: 50
-

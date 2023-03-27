@@ -8,16 +8,20 @@ import org.bukkit.scheduler.BukkitRunnable;
 import net.pupskuchen.timecontrol.config.ConfigManager;
 import net.pupskuchen.timecontrol.event.player.PlayerBed;
 import net.pupskuchen.timecontrol.runnable.Runnable;
-import net.pupskuchen.timecontrol.util.LogUtil;
+import net.pupskuchen.timecontrol.util.TCLogger;
 
 public class TimeControl extends JavaPlugin {
 
     private ConfigManager cm;
+    private TCLogger logger;
 
     @Override
     public void onEnable() {
-        this.registerConfig();
-        this.registerEvents();
+        logger = new TCLogger(this);
+        registerConfig();
+        logger.setDebug(cm.isDebug());
+        registerEvents();
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -29,35 +33,35 @@ public class TimeControl extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.setDaylightCycle(true);
+        setDaylightCycle(true);
     }
 
     private void registerConfig() {
-        this.saveDefaultConfig();
-        this.cm = new ConfigManager(this.getConfig());
-        this.cm.validate();
+        saveDefaultConfig();
+        cm = new ConfigManager(this);
+        cm.validate();
     }
 
     private void registerEvents() {
-        this.getServer().getPluginManager().registerEvents(new PlayerBed(this, getConfigManager()), this);
+        getServer().getPluginManager().registerEvents(new PlayerBed(this, getConfigManager()), this);
     }
 
     private void registerRunnables() {
         final Runnable runnable = new Runnable(this);
         Bukkit.getWorlds()
                 .stream()
-                .filter(world -> this.cm.getWorlds().contains(world.getName()))
+                .filter(world -> cm.getWorlds().contains(world.getName()))
                 .forEach(runnable::runCycles);
     }
 
     private void setDaylightCycle(final boolean value) {
         Bukkit.getWorlds()
                 .stream()
-                .filter(world -> this.cm.getWorlds().contains(world.getName()))
+                .filter(world -> cm.getWorlds().contains(world.getName()))
                 .forEach(world -> {
                     world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, value);
-                    LogUtil.console(String.format("Setting game rule \"%s\" to \"%b\" for world \"%s\"",
-                            GameRule.DO_DAYLIGHT_CYCLE.getName(), value, world.getName()));
+                    logger.info("Set game rule \"%s\" to \"%b\" for world \"%s\"",
+                            GameRule.DO_DAYLIGHT_CYCLE.getName(), value, world.getName());
                 });
     }
 
@@ -65,4 +69,7 @@ public class TimeControl extends JavaPlugin {
         return this.cm;
     }
 
+    public TCLogger getTCLogger() {
+        return this.logger;
+    }
 }
