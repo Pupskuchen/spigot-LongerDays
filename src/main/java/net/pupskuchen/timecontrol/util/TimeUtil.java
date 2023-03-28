@@ -2,12 +2,15 @@ package net.pupskuchen.timecontrol.util;
 
 import org.bukkit.World;
 
-public class TimeUtil {
+public final class TimeUtil {
     // https://minecraft.fandom.com/wiki/Daylight_cycle
     public static final TimeRange DAY = new TimeRange(0, 12999);
     // https://minecraft.fandom.com/wiki/Bed#Sleeping
     public static final TimeRange SLEEP_ALLOWED_CLEAR = new TimeRange(12542, 23459);
     public static final TimeRange SLEEP_ALLOWED_RAIN = new TimeRange(12010, 23991);
+
+    private TimeUtil() {
+    }
 
     public static boolean isDay(final World world) {
         final long time = world.getTime();

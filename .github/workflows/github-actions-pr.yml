@@ -1,0 +1,21 @@
+name: PR Check
+on: pull_request
+permissions:
+  checks: write
+jobs:
+  coverage:
+    name: PR Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/build
+      - name: Publish test coverage results
+        uses: PavanMudigonda/jacoco-reporter@v4.8
+        with:
+          coverage_results_path: "target/site/jacoco/jacoco.xml"
+          coverage_report_title: "Test coverage results"
+          coverage_report_name: "Test coverage results"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          minimum_coverage: 80
+          fail_below_threshold: false
+          publish_only_summary: false
