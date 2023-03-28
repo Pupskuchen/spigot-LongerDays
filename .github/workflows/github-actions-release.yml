@@ -16,11 +16,13 @@ jobs:
         run: echo "RELEASE_DESC=${{ github.workspace }}/RELEASE_DESC.txt" >> $GITHUB_ENV
       - name: Compute checksums
         run: |
-          echo "JAR checksums:" > ${{ env.RELEASE_DESC }}
+          echo '```' > ${{ env.RELEASE_DESC }}
+          echo 'JAR checksums:' >> ${{ env.RELEASE_DESC }}
           algorithms=(1 256 512)
           for i in "${algorithms[@]}"; do
             shasum -a $i -b target/TimeControl.jar | awk '{print $1}' | sed -e "s/^/SHA$i: /" >> ${{ env.RELEASE_DESC }}
           done
+          echo '```' >> ${{ env.RELEASE_DESC }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
