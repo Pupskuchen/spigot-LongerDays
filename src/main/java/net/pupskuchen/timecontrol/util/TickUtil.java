@@ -1,6 +1,9 @@
 package net.pupskuchen.timecontrol.util;
 
-public class TickUtil {
+public final class TickUtil {
+    private TickUtil() {
+    }
+
     private static double getTickRatio(final long ticks) {
         return 1.0 / (ticks / 12000.0);
     }

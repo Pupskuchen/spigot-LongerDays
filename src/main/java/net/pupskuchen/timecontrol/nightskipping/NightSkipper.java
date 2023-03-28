@@ -1,11 +1,9 @@
 package net.pupskuchen.timecontrol.nightskipping;
 
 import java.util.List;
-
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
 import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigManager;
 import net.pupskuchen.timecontrol.util.TCLogger;
@@ -19,7 +17,8 @@ public class NightSkipper {
     private final NightSkipGuard skipGuard;
     private final TCLogger logger;
 
-    public NightSkipper(final TimeControl plugin, final ConfigManager configManager, final World world) {
+    public NightSkipper(final TimeControl plugin, final ConfigManager configManager,
+            final World world) {
         this.world = world;
         this.configManager = configManager;
         this.skipGuard = new NightSkipGuard(plugin);
@@ -32,17 +31,13 @@ public class NightSkipper {
         }
     }
 
-    public void cancelGuard() {
-        skipGuard.cancel();
-    }
-
-    public int getSkipPercentage() {
+    private int getSkipPercentage() {
         if (!configManager.isPercentageEnabled()) {
             try {
                 return world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
             } catch (Exception e) {
-                logger.warn("Could not fetch game-rule value 'playersSleepingPercentage!" +
-                        " Please enable players-sleeping-percentage in the plugin configuration.");
+                logger.warn("Could not fetch game-rule value 'playersSleepingPercentage!"
+                        + " Please enable players-sleeping-percentage in the plugin configuration.");
                 logger.warn("Using fallback percentage of %d %%", SKIP_PERCENTAGE_FALLBACK);
 
                 return SKIP_PERCENTAGE_FALLBACK;

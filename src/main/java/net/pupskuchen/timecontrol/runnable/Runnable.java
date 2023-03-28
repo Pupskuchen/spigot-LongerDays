@@ -22,7 +22,7 @@ public class Runnable {
     public Runnable(final TimeControl plugin) {
         this.plugin = plugin;
         this.logger = plugin.getTCLogger();
-        this.cm = this.plugin.getConfigManager();
+        this.cm = plugin.getConfigManager();
         this.counts = new HashMap<>();
     }
 

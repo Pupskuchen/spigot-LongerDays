@@ -1,0 +1,30 @@
+name: Release
+run-name: ${{ github.actor }} is creating a release
+on:
+  push:
+    tags:
+      - "*.*.*"
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/build
+      - name: Prepare release description
+        run: echo "RELEASE_DESC=${{ github.workspace }}/RELEASE_DESC.txt" >> $GITHUB_ENV
+      - name: Compute checksums
+        run: |
+          echo "JAR checksums:" > ${{ env.RELEASE_DESC }}
+          algorithms=(1 256 512)
+          for i in "${algorithms[@]}"; do
+            shasum -a $i -b target/TimeControl.jar | awk '{print $1}' | sed -e "s/^/SHA$i: /" >> ${{ env.RELEASE_DESC }}
+          done
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ${{ env.RELEASE_DESC }}
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}
+          files: target/TimeControl.jar
+          fail_on_unmatched_files: true
