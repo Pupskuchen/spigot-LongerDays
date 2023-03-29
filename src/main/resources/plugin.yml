@@ -1,6 +1,6 @@
 name: ${project.name}
 main: net.pupskuchen.timecontrol.TimeControl
 version: ${project.version}
-api-version: 1.19
+api-version: 1.16
 authors: [foncused, mrgeneralq, pupskuchen]
 website: https://github.com/Pupskuchen/spigot-TimeControl

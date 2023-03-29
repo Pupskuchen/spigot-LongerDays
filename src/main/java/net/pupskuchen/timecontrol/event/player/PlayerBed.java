@@ -2,15 +2,13 @@ package net.pupskuchen.timecontrol.event.player;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
-
 import net.pupskuchen.timecontrol.TimeControl;
-import net.pupskuchen.timecontrol.config.ConfigManager;
 import net.pupskuchen.timecontrol.nightskipping.NightSkipper;
 import net.pupskuchen.timecontrol.util.TCLogger;
 
@@ -18,34 +16,29 @@ public class PlayerBed implements Listener {
 
     private final TimeControl plugin;
     private final TCLogger logger;
-    private final ConfigManager configManager;
     private final Map<String, NightSkipper> worldSkippers;
 
-    public PlayerBed(final TimeControl plugin, final ConfigManager configManager) {
+    public PlayerBed(final TimeControl plugin) {
         this.plugin = plugin;
         this.logger = plugin.getTCLogger();
-        this.configManager = configManager;
         this.worldSkippers = new HashMap<>();
     }
 
     @EventHandler
     public void onPlayerBedEnter(final PlayerBedEnterEvent event) {
-        if (!configManager.isNightSkippingEnabled()) {
-            return;
-        }
-
         if (event.getBedEnterResult() != PlayerBedEnterEvent.BedEnterResult.OK) {
             return;
         }
 
-        final World world = event.getPlayer().getWorld();
+        final Player player = event.getPlayer();
+        final World world = player.getWorld();
         final String worldName = world.getName();
         NightSkipper skipper = worldSkippers.get(worldName);
 
-        logger.debug("%s has entered a bed at %d", event.getPlayer().getName(), world.getTime());
+        logger.debug("%s has entered a bed at %d", player.getName(), world.getTime());
 
         if (skipper == null) {
-            skipper = new NightSkipper(plugin, configManager, world);
+            skipper = new NightSkipper(plugin, world);
             this.worldSkippers.put(worldName, skipper);
         }
 
@@ -54,14 +47,12 @@ public class PlayerBed implements Listener {
 
     @EventHandler
     public void onPlayerBedLeave(final PlayerBedLeaveEvent event) {
-        if (!configManager.isNightSkippingEnabled()) {
-            return;
-        }
+        final Player player = event.getPlayer();
+        final World world = player.getWorld();
 
-        logger.debug("%s has left a bed at %d", event.getPlayer().getName(), event.getPlayer().getWorld().getTime());
+        logger.debug("%s has left a bed at %d", player.getName(), world.getTime());
 
-        final String worldName = event.getPlayer().getWorld().getName();
-        final NightSkipper skipper = worldSkippers.get(worldName);
+        final NightSkipper skipper = worldSkippers.get(world.getName());
 
         if (skipper == null) {
             return;

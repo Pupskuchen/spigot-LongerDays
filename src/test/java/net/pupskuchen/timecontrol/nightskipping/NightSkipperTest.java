@@ -46,8 +46,9 @@ public class NightSkipperTest {
     @BeforeEach
     public void setup() {
         when(plugin.getTCLogger()).thenReturn(logger);
+        when(plugin.getConfigManager()).thenReturn(configManager);
         try (MockedConstruction<NightSkipGuard> mock = mockConstruction(NightSkipGuard.class)) {
-            skipper = new NightSkipper(plugin, configManager, world);
+            skipper = new NightSkipper(plugin, world);
             skipGuard = mock.constructed().get(0);
         }
     }
@@ -77,7 +78,7 @@ public class NightSkipperTest {
     @Test
     public void skippableByFallback() {
         when(configManager.isPercentageEnabled()).thenReturn(false);
-        when(world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE)).thenThrow(new RuntimeException());
+        when(world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE)).thenThrow(new NoSuchFieldError());
 
         for(int i = 0; i <= 3; i++) {
             when(world.getPlayers()).thenReturn(players.get(i));

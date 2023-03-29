@@ -16,6 +16,9 @@ public class TimeControl extends JavaPlugin {
     private ConfigManager cm;
     private TCLogger logger;
 
+    // needed for the plugin to actually be able to be loaded in a server
+    public TimeControl() {}
+
     // needed for unit tests with MockBukkit
     protected TimeControl(JavaPluginLoader loader, PluginDescriptionFile description,
             File dataFolder, File file) {
@@ -50,8 +53,9 @@ public class TimeControl extends JavaPlugin {
     }
 
     private void registerEvents() {
-        getServer().getPluginManager().registerEvents(new PlayerBed(this, getConfigManager()),
-                this);
+        if (cm.isNightSkippingEnabled()) {
+            getServer().getPluginManager().registerEvents(new PlayerBed(this), this);
+        }
     }
 
     private void registerRunnables() {

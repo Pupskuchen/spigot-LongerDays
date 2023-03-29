@@ -7,7 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerBedEnterEvent;
@@ -18,9 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import net.pupskuchen.timecontrol.TimeControl;
-import net.pupskuchen.timecontrol.config.ConfigManager;
 import net.pupskuchen.timecontrol.nightskipping.NightSkipper;
 import net.pupskuchen.timecontrol.util.TCLogger;
 
@@ -29,8 +26,6 @@ public class PlayerBedTest {
 
     @Mock
     final TimeControl plugin = mock(TimeControl.class);
-    @Mock
-    final ConfigManager configManager = mock(ConfigManager.class);
     @Mock
     final TCLogger logger = mock(TCLogger.class);
 
@@ -48,7 +43,7 @@ public class PlayerBedTest {
     @BeforeEach
     public void setup() {
         when(plugin.getTCLogger()).thenReturn(logger);
-        playerBed = new PlayerBed(plugin, configManager);
+        playerBed = new PlayerBed(plugin);
     }
 
     private void stubPlayer() {
@@ -70,17 +65,7 @@ public class PlayerBedTest {
     }
 
     @Test
-    public void doNothingOnEnterIfSkippingDisabled() {
-        when(configManager.isNightSkippingEnabled()).thenReturn(false);
-        playerBed.onPlayerBedEnter(enterEvent);
-        verify(configManager, times(1)).isNightSkippingEnabled();
-        verifyNoInteractions(enterEvent);
-        verifyNoInteractions(logger);
-    }
-
-    @Test
     public void doNothingOnEnterIfEnterNotOk() {
-        when(configManager.isNightSkippingEnabled()).thenReturn(true);
         when(enterEvent.getBedEnterResult()).thenReturn(PlayerBedEnterEvent.BedEnterResult.NOT_POSSIBLE_NOW);
 
         playerBed.onPlayerBedEnter(enterEvent);
@@ -92,20 +77,10 @@ public class PlayerBedTest {
     }
 
     @Test
-    public void doNothingOnLeaveIfSkippingDisabled() {
-        when(configManager.isNightSkippingEnabled()).thenReturn(false);
-        playerBed.onPlayerBedLeave(leaveEvent);
-        verify(configManager, times(1)).isNightSkippingEnabled();
-        verifyNoInteractions(leaveEvent);
-        verifyNoInteractions(logger);
-    }
-
-    @Test
     public void createSkipperAndStartGuard() {
         this.stubEnterEvent();
         this.stubPlayer();
         this.stubWorld();
-        when(configManager.isNightSkippingEnabled()).thenReturn(true);
         when(enterEvent.getBedEnterResult()).thenReturn(PlayerBedEnterEvent.BedEnterResult.OK);
 
         try (MockedConstruction<NightSkipper> mock = mockConstruction(NightSkipper.class)) {
@@ -124,7 +99,6 @@ public class PlayerBedTest {
         this.stubEnterEvent();
         this.stubPlayer();
         this.stubWorld();
-        when(configManager.isNightSkippingEnabled()).thenReturn(true);
         when(enterEvent.getBedEnterResult()).thenReturn(PlayerBedEnterEvent.BedEnterResult.OK);
 
         try (MockedConstruction<NightSkipper> mock = mockConstruction(NightSkipper.class)) {
@@ -144,7 +118,6 @@ public class PlayerBedTest {
         this.stubLeaveEvent();
         this.stubPlayer();
         this.stubWorld();
-        when(configManager.isNightSkippingEnabled()).thenReturn(true);
 
         try (MockedConstruction<NightSkipper> mock = mockConstruction(NightSkipper.class)) {
             playerBed.onPlayerBedLeave(leaveEvent);
@@ -161,7 +134,6 @@ public class PlayerBedTest {
         this.stubLeaveEvent();
         this.stubPlayer();
         this.stubWorld();
-        when(configManager.isNightSkippingEnabled()).thenReturn(true);
         when(enterEvent.getBedEnterResult()).thenReturn(PlayerBedEnterEvent.BedEnterResult.OK);
 
         try (MockedConstruction<NightSkipper> mock = mockConstruction(NightSkipper.class)) {

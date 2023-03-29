@@ -17,10 +17,9 @@ public class NightSkipper {
     private final NightSkipGuard skipGuard;
     private final TCLogger logger;
 
-    public NightSkipper(final TimeControl plugin, final ConfigManager configManager,
-            final World world) {
+    public NightSkipper(final TimeControl plugin, final World world) {
         this.world = world;
-        this.configManager = configManager;
+        this.configManager = plugin.getConfigManager();
         this.skipGuard = new NightSkipGuard(plugin);
         this.logger = plugin.getTCLogger();
     }
@@ -35,7 +34,7 @@ public class NightSkipper {
         if (!configManager.isPercentageEnabled()) {
             try {
                 return world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
-            } catch (Exception e) {
+            } catch (NoSuchFieldError e) {
                 logger.warn("Could not fetch game-rule value 'playersSleepingPercentage!"
                         + " Please enable players-sleeping-percentage in the plugin configuration.");
                 logger.warn("Using fallback percentage of %d %%", SKIP_PERCENTAGE_FALLBACK);
