@@ -32,7 +32,8 @@
                 <configuration>
                     <fork>true</fork>
                     <source>17</source>
-                    <target>11</target>
+                    <target>17</target>
+                    <release>11</release>
                 </configuration>
             </plugin>
             <!-- Maven Jar -->
