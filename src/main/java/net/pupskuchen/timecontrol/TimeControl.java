@@ -1,7 +1,10 @@
 package net.pupskuchen.timecontrol;
 
 import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.bukkit.GameRule;
+import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -29,7 +32,6 @@ public class TimeControl extends JavaPlugin {
     public void onEnable() {
         logger = new TCLogger(this);
         registerConfig();
-        logger.setDebug(cm.isDebug());
         registerEvents();
 
         new BukkitRunnable() {
@@ -49,28 +51,34 @@ public class TimeControl extends JavaPlugin {
     private void registerConfig() {
         saveDefaultConfig();
         cm = new ConfigManager(this);
+        cm.initializeDebugMode();
+        cm.registerSerializables();
         cm.validate();
     }
 
     private void registerEvents() {
-        if (cm.isNightSkippingEnabled()) {
+        if (!cm.nightSkippingDisabledGlobally()) {
             getServer().getPluginManager().registerEvents(new PlayerBed(this), this);
         }
     }
 
     private void registerRunnables() {
         final Runnable runnable = new Runnable(this);
-        getServer().getWorlds().stream().filter(world -> cm.getWorlds().contains(world.getName()))
-                .forEach(runnable::runCycles);
+        runnable.enableForWorlds(getEnabledWorlds());
     }
 
     private void setDaylightCycle(final boolean value) {
-        getServer().getWorlds().stream().filter(world -> cm.getWorlds().contains(world.getName()))
-                .forEach(world -> {
-                    world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, value);
-                    logger.info("Set game rule \"%s\" to \"%b\" for world \"%s\"",
-                            GameRule.DO_DAYLIGHT_CYCLE.getName(), value, world.getName());
-                });
+        getEnabledWorlds().forEach(world -> {
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, value);
+            logger.info("Set game rule \"%s\" to \"%b\" for world \"%s\".",
+                    GameRule.DO_DAYLIGHT_CYCLE.getName(), value, world.getName());
+        });
+    }
+
+    public List<World> getEnabledWorlds() {
+        return getServer().getWorlds().stream()
+                .filter(world -> cm.getWorlds().contains(world.getName()))
+                .collect(Collectors.toList());
     }
 
     public ConfigManager getConfigManager() {

@@ -29,23 +29,28 @@ public class NightSkipper {
     }
 
     private int getSkipPercentage() {
-        if (!configManager.isPercentageEnabled()) {
+        if (!configManager.isPercentageEnabled(world)) {
             try {
                 return world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
             } catch (NoSuchFieldError e) {
                 logger.warn("Could not fetch game-rule value 'playersSleepingPercentage!"
                         + " Please enable players-sleeping-percentage in the plugin configuration.");
-                logger.warn("Using fallback percentage of %d %%", SKIP_PERCENTAGE_FALLBACK);
+                logger.warn("Using fallback percentage of %d %%.", SKIP_PERCENTAGE_FALLBACK);
 
                 return SKIP_PERCENTAGE_FALLBACK;
             }
         }
 
-        return configManager.getConfigPercentage();
+        return configManager.getConfigPercentage(world);
     }
 
     private boolean skipThresholdMet() {
         final int skipPercentage = getSkipPercentage();
+
+        if (skipPercentage <= 0) {
+            return true;
+        }
+
         final List<Player> players = world.getPlayers();
         final int sleeping = (int) players.stream()
                 .filter((player) -> player.getSleepTicks() >= SKIPPABLE_SLEEP_TICKS).count();
@@ -72,6 +77,7 @@ public class NightSkipper {
         final int wakeTime = TimeUtil.getWakeTime(world);
 
         world.setTime(wakeTime);
-        logger.info("The night has been skipped by sleeping");
+        logger.info("Skipped the night on world \"%s\".", world.getName());
+        logger.debug("Set time to %d on world \"%s\".", wakeTime, world.getName());
     }
 }

@@ -1,21 +1,26 @@
 # ${project.name} ${project.version}
 
-# Day cycle in minutes
-day: 30
+# This defines the global/default configuration
+# that gets used by every world defined in "worlds"
+# unless you override some or all settings for
+# certain worlds (or all, if you want).
+defaults:
+  durations:
+    # Day duration in minutes
+    day: 20
+    # Night duration in minutes
+    night: 5
+  # With night-skipping enabled, players can skip the night by sleeping.
+  # This functionality honors the "playersSleepingPercentage" game rule.
+  night-skipping:
+    enabled: true
+  # If your server doesn't have the "playersSleepingPercentage" game rule,
+  # you can still control the percentage by enabling this.
+  players-sleeping-percentage:
+    enabled: false
+    percentage: 100
 
-# Night cycle in minutes
-night: 5
-
-# Worlds to enable
+# Worlds to enable ${project.name} for
+# You can override the settings defined in "defaults" per world.
 worlds:
-  - "world"
-
-# when this option is enabled, you can skip the night
-night-skipping:
-  enabled: false
-
-# If your server doesn't have the 'playersSleepingPercentage' game rule,
-# you can still control the percentage by enabling this
-players-sleeping-percentage:
-  enabled: false
-  percentage: 50
+  - name: "world"
