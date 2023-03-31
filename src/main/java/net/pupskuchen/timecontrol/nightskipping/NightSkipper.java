@@ -10,24 +10,22 @@ import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TimeUtil;
 
 public class NightSkipper {
+    /**
+     * While the online documentation states that players sleep in a bed for 101 ticks, they seem to
+     * actually get kicked out after 100 ticks already. Close enough …
+     * https://minecraft.fandom.com/wiki/Bed#Sleeping
+     */
+    private static final int SKIPPABLE_SLEEP_TICKS = 100;
     private static final int SKIP_PERCENTAGE_FALLBACK = 100;
 
     private final World world;
     private final ConfigManager configManager;
-    private final NightSkipGuard skipGuard;
     private final TCLogger logger;
 
     public NightSkipper(final TimeControl plugin, final World world) {
         this.world = world;
         this.configManager = plugin.getConfigManager();
-        this.skipGuard = new NightSkipGuard(plugin);
         this.logger = plugin.getTCLogger();
-    }
-
-    public void restartGuard() {
-        if (!this.skipThresholdMet()) {
-            skipGuard.makeSkippable();
-        }
     }
 
     private int getSkipPercentage() {
@@ -49,22 +47,19 @@ public class NightSkipper {
     private boolean skipThresholdMet() {
         final int skipPercentage = getSkipPercentage();
         final List<Player> players = world.getPlayers();
-        final int sleeping = (int) players.stream().filter((player) -> player.isSleeping()).count();
+        final int sleeping = (int) players.stream()
+                .filter((player) -> player.getSleepTicks() >= SKIPPABLE_SLEEP_TICKS).count();
         final float sleepingPercentage = ((float) sleeping / players.size()) * 100;
 
         return sleepingPercentage >= skipPercentage;
     }
 
     private boolean shouldSkipNight() {
-        if (!skipGuard.isSkippable() || !TimeUtil.sleepAllowed(world)) {
+        if (!TimeUtil.sleepAllowed(world)) {
             return false;
         }
 
         final boolean thresholdMet = skipThresholdMet();
-
-        if (!thresholdMet) {
-            skipGuard.cancel();
-        }
 
         return thresholdMet;
     }

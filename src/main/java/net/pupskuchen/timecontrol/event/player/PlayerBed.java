@@ -41,8 +41,6 @@ public class PlayerBed implements Listener {
             skipper = new NightSkipper(plugin, world);
             this.worldSkippers.put(worldName, skipper);
         }
-
-        skipper.restartGuard();
     }
 
     @EventHandler
