@@ -9,17 +9,14 @@ public final class TimeUtil {
     public static final TimeRange SLEEP_ALLOWED_CLEAR = new TimeRange(12542, 23459);
     public static final TimeRange SLEEP_ALLOWED_RAIN = new TimeRange(12010, 23991);
 
-    private TimeUtil() {
-    }
+    private TimeUtil() {}
 
-    public static boolean isDay(final World world) {
-        final long time = world.getTime();
-
+    public static boolean isDay(final long time) {
         return DAY.isInRange(time);
     }
 
-    public static boolean isNight(final World world) {
-        return !isDay(world);
+    public static boolean isNight(final long time) {
+        return !isDay(time);
     }
 
     public static boolean sleepAllowed(final World world) {
