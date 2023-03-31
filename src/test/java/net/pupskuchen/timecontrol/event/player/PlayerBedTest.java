@@ -90,7 +90,7 @@ public class PlayerBedTest {
             NightSkipper skipper = mock.constructed().get(0);
 
             verify(logger, times(1)).debug("%s has entered a bed at %d", "somePlayerName", 15000L);
-            verify(skipper, times(1)).restartGuard();
+            verifyNoInteractions(skipper);
         }
     }
 
@@ -109,7 +109,7 @@ public class PlayerBedTest {
             NightSkipper skipper = mock.constructed().get(0);
 
             verify(logger, times(2)).debug("%s has entered a bed at %d", "somePlayerName", 15000L);
-            verify(skipper, times(2)).restartGuard();
+            verifyNoInteractions(skipper);
         }
     }
 
