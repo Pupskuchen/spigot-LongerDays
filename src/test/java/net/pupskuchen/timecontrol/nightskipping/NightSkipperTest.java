@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import net.pupskuchen.timecontrol.TimeControl;
-import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.config.ConfigHandler;
 import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TimeUtil;
 
@@ -29,7 +29,7 @@ public class NightSkipperTest {
     @Mock
     final TimeControl plugin = mock(TimeControl.class);
     @Mock
-    final ConfigManager configManager = mock(ConfigManager.class);
+    final ConfigHandler configManager = mock(ConfigHandler.class);
     @Mock
     final TCLogger logger = mock(TCLogger.class);
     @Mock
@@ -68,7 +68,7 @@ public class NightSkipperTest {
 
     @Test
     public void skipNightThresholdNotMet() {
-        when(configManager.isPercentageEnabled()).thenReturn(false);
+        when(configManager.isPercentageEnabled(world)).thenReturn(false);
         when(world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE)).thenReturn( 50);
         when(world.getPlayers()).thenReturn(players.get(0));
 
@@ -81,25 +81,27 @@ public class NightSkipperTest {
 
     @Test
     public void skipNightByGameRule() {
-        when(configManager.isPercentageEnabled()).thenReturn(false);
+        when(configManager.isPercentageEnabled(world)).thenReturn(false);
         when(world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE)).thenReturn( 50);
         when(world.getPlayers()).thenReturn(players.get(2));
+        when(world.getName()).thenReturn("fancy-world");
 
         try(MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
             mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
             mock.when(() -> TimeUtil.getWakeTime(world)).thenReturn(123);
             skipper.skipNight();
             verify(world, times(1)).setTime(123);
-            verify(logger, times(1)).info("The night has been skipped by sleeping");
+            verify(logger, times(1)).info("Skipped the night on world \"%s\".", "fancy-world");
         }
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void skipNightByByFallback() {
-        when(configManager.isPercentageEnabled()).thenReturn(false);
+        when(configManager.isPercentageEnabled(world)).thenReturn(false);
         when(world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE)).thenThrow(new NoSuchFieldError());
         when(world.getPlayers()).thenReturn(players.get(2), players.get(3));
+        when(world.getName()).thenReturn("fancy-world");
 
 
         try(MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
@@ -111,24 +113,25 @@ public class NightSkipperTest {
             verify(world, times(1)).setTime(123);
             verify(logger, times(2)).warn("Could not fetch game-rule value 'playersSleepingPercentage!" +
             " Please enable players-sleeping-percentage in the plugin configuration.");
-            verify(logger, times(2)).warn("Using fallback percentage of %d %%", 100);
-            verify(logger, times(1)).info("The night has been skipped by sleeping");
-        }
+            verify(logger, times(2)).warn("Using fallback percentage of %d %%.", 100);
+
+            verify(logger, times(1)).info("Skipped the night on world \"%s\".", "fancy-world");        }
 
     }
 
     @Test
     public void skipNightByByConfiguration() {
-        when(configManager.isPercentageEnabled()).thenReturn(true);
-        when(configManager.getConfigPercentage()).thenReturn( 50);
+        when(configManager.isPercentageEnabled(world)).thenReturn(true);
+        when(configManager.getConfigPercentage(world)).thenReturn( 50);
         when(world.getPlayers()).thenReturn(players.get(2));
+        when(world.getName()).thenReturn("fancy-world");
 
         try(MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
             mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
             mock.when(() -> TimeUtil.getWakeTime(world)).thenReturn(123);
             skipper.skipNight();
             verify(world, times(1)).setTime(123);
-            verify(logger, times(1)).info("The night has been skipped by sleeping");
+            verify(logger, times(1)).info("Skipped the night on world \"%s\".", "fancy-world");
         }
     }
 }

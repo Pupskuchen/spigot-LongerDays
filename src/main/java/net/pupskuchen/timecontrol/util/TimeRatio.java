@@ -1,23 +1,23 @@
 package net.pupskuchen.timecontrol.util;
 
-import org.bukkit.World;
-import net.pupskuchen.timecontrol.TimeControl;
-import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.config.entity.Durations;
 
+// TODO: rename
 public class TimeRatio {
     public final double day;
     public final double night;
+
+    public final boolean originalDoDaylightCycle;
 
     /**
      * Ticks to wait before progressing time.
      */
     private long intermediateTicks = 0;
 
-    public TimeRatio(final TimeControl plugin, final World world) {
-        final ConfigManager config = plugin.getConfigManager();
-
-        day = TickUtil.cycleMinsToTickRatio(config.getDay(world));
-        night = TickUtil.cycleMinsToTickRatio(config.getNight(world));
+    public TimeRatio(final Durations durations, final boolean doDaylightCycle) {
+        day = TickUtil.cycleMinsToTickRatio(durations.day);
+        night = TickUtil.cycleMinsToTickRatio(durations.night);
+        this.originalDoDaylightCycle = doDaylightCycle;
     }
 
     public long getIntermediateTicks() {

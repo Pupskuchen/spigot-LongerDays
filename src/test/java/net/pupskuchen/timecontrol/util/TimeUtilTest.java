@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-
 import org.bukkit.World;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,24 +39,20 @@ public class TimeUtilTest {
 
     @Test
     public void isDay(@Mock World mockWorld) {
-        when(mockWorld.getTime()).thenReturn(13L, 14230L, 0L, 23000L, -1L);
-
-        assertTrue(TimeUtil.isDay(mockWorld));
-        assertFalse(TimeUtil.isDay(mockWorld));
-        assertTrue(TimeUtil.isDay(mockWorld));
-        assertFalse(TimeUtil.isDay(mockWorld));
-        assertFalse(TimeUtil.isDay(mockWorld));
+        assertTrue(TimeUtil.isDay(13L));
+        assertFalse(TimeUtil.isDay(14230L));
+        assertTrue(TimeUtil.isDay(0L));
+        assertFalse(TimeUtil.isDay(23000L));
+        assertFalse(TimeUtil.isDay(-1L));
     }
 
     @Test
     public void isNight(@Mock World mockWorld) {
-        when(mockWorld.getTime()).thenReturn(13L, 14230L, 0L, 23000L, -1L);
-
-        assertFalse(TimeUtil.isNight(mockWorld));
-        assertTrue(TimeUtil.isNight(mockWorld));
-        assertFalse(TimeUtil.isNight(mockWorld));
-        assertTrue(TimeUtil.isNight(mockWorld));
-        assertTrue(TimeUtil.isNight(mockWorld));
+        assertFalse(TimeUtil.isNight(13L));
+        assertTrue(TimeUtil.isNight(14230L));
+        assertFalse(TimeUtil.isNight(0L));
+        assertTrue(TimeUtil.isNight(23000L));
+        assertTrue(TimeUtil.isNight(-1L));
     }
 
     @Test

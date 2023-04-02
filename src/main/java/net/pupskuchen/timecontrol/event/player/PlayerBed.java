@@ -9,7 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import net.pupskuchen.timecontrol.TimeControl;
-import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.config.ConfigHandler;
 import net.pupskuchen.timecontrol.nightskipping.NightSkipper;
 import net.pupskuchen.timecontrol.util.TCLogger;
 
@@ -17,14 +17,13 @@ public class PlayerBed implements Listener {
 
     private final TimeControl plugin;
     private final TCLogger logger;
-    private final ConfigManager config;
-    private final Map<String, NightSkipper> worldSkippers;
+    private final ConfigHandler config;
+    private final Map<String, NightSkipper> worldSkippers = new HashMap<>();
 
     public PlayerBed(final TimeControl plugin) {
         this.plugin = plugin;
         this.logger = plugin.getTCLogger();
         this.config = plugin.getConfigManager();
-        this.worldSkippers = new HashMap<>();
     }
 
     @EventHandler
@@ -32,7 +31,7 @@ public class PlayerBed implements Listener {
         final Player player = event.getPlayer();
         final World world = player.getWorld();
 
-        if (!config.isNightSkippingEnabled(world)) {
+        if (!config.isWorldEnabled(world) || !config.isNightSkippingEnabled(world)) {
             return;
         }
 
@@ -56,7 +55,7 @@ public class PlayerBed implements Listener {
         final Player player = event.getPlayer();
         final World world = player.getWorld();
 
-        if (!config.isNightSkippingEnabled(world)) {
+        if (!config.isWorldEnabled(world) || !config.isNightSkippingEnabled(world)) {
             return;
         }
 
