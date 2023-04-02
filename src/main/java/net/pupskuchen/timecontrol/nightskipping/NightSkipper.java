@@ -5,7 +5,7 @@ import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import net.pupskuchen.timecontrol.TimeControl;
-import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.config.ConfigHandler;
 import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TimeUtil;
 
@@ -19,17 +19,17 @@ public class NightSkipper {
     private static final int SKIP_PERCENTAGE_FALLBACK = 100;
 
     private final World world;
-    private final ConfigManager configManager;
+    private final ConfigHandler config;
     private final TCLogger logger;
 
     public NightSkipper(final TimeControl plugin, final World world) {
         this.world = world;
-        this.configManager = plugin.getConfigManager();
+        this.config = plugin.getConfigManager();
         this.logger = plugin.getTCLogger();
     }
 
     private int getSkipPercentage() {
-        if (!configManager.isPercentageEnabled(world)) {
+        if (!config.isPercentageEnabled(world)) {
             try {
                 return world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
             } catch (NoSuchFieldError e) {
@@ -41,7 +41,7 @@ public class NightSkipper {
             }
         }
 
-        return configManager.getConfigPercentage(world);
+        return config.getConfigPercentage(world);
     }
 
     private boolean skipThresholdMet() {

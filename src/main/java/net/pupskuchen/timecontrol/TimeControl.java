@@ -1,23 +1,21 @@
 package net.pupskuchen.timecontrol;
 
 import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.bukkit.GameRule;
-import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
-import org.bukkit.scheduler.BukkitRunnable;
-import net.pupskuchen.timecontrol.config.ConfigManager;
+import net.pupskuchen.timecontrol.config.ConfigHandler;
 import net.pupskuchen.timecontrol.event.player.PlayerBed;
+import net.pupskuchen.timecontrol.event.world.WorldEvents;
 import net.pupskuchen.timecontrol.runnable.Runnable;
 import net.pupskuchen.timecontrol.util.TCLogger;
 
 public class TimeControl extends JavaPlugin {
 
-    private ConfigManager cm;
+    private ConfigHandler config;
     private TCLogger logger;
+    private Runnable runnable;
 
     // needed for the plugin to actually be able to be loaded in a server
     public TimeControl() {}
@@ -30,62 +28,51 @@ public class TimeControl extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        PluginManager pluginManager = getServer().getPluginManager();
+
         logger = new TCLogger(this);
         registerConfig();
-        registerEvents();
+        runnable = new Runnable(this);
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                setDaylightCycle(false);
-                registerRunnables();
-            }
-        }.runTask(this);
+        registerPlayerBedEvents(pluginManager);
+        registerWorldEvents(pluginManager);
+
+        runnable.enableForWorlds(config.getWorlds());
     }
 
     @Override
     public void onDisable() {
-        setDaylightCycle(true);
+        runnable.disableAll();
+        runnable = null;
+        logger = null;
+        config = null;
     }
 
     private void registerConfig() {
         saveDefaultConfig();
-        cm = new ConfigManager(this);
-        cm.initializeDebugMode();
-        cm.registerSerializables();
-        cm.validate();
+        config = new ConfigHandler(this);
+        config.initializeDebugMode();
+        config.validate();
     }
 
-    private void registerEvents() {
-        if (!cm.nightSkippingDisabledGlobally()) {
-            getServer().getPluginManager().registerEvents(new PlayerBed(this), this);
+    private void registerPlayerBedEvents(final PluginManager pluginManager) {
+        if (!config.nightSkippingDisabledGlobally()) {
+            pluginManager.registerEvents(new PlayerBed(this), this);
+            logger.debug("Set up player bed event listener.");
         }
     }
 
-    private void registerRunnables() {
-        final Runnable runnable = new Runnable(this);
-        runnable.enableForWorlds(getEnabledWorlds());
+    private void registerWorldEvents(final PluginManager pluginManager) {
+        pluginManager.registerEvents(new WorldEvents(runnable), this);
+        logger.debug("Set up world event listener.");
     }
 
-    private void setDaylightCycle(final boolean value) {
-        getEnabledWorlds().forEach(world -> {
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, value);
-            logger.info("Set game rule \"%s\" to \"%b\" for world \"%s\".",
-                    GameRule.DO_DAYLIGHT_CYCLE.getName(), value, world.getName());
-        });
-    }
-
-    public List<World> getEnabledWorlds() {
-        return getServer().getWorlds().stream()
-                .filter(world -> cm.getWorlds().contains(world.getName()))
-                .collect(Collectors.toList());
-    }
-
-    public ConfigManager getConfigManager() {
-        return this.cm;
+    // TODO: rename
+    public ConfigHandler getConfigManager() {
+        return config;
     }
 
     public TCLogger getTCLogger() {
-        return this.logger;
+        return logger;
     }
 }
