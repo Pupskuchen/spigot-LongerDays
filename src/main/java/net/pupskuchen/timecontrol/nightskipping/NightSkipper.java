@@ -19,21 +19,48 @@ public class NightSkipper {
     private static final int SKIP_PERCENTAGE_FALLBACK = 100;
 
     private final World world;
-    private final ConfigHandler config;
+    private final int skipPercentage;
     private final TCLogger logger;
+    private final NightSkipScheduler skipScheduler;
 
     public NightSkipper(final TimeControl plugin, final World world) {
         this.world = world;
-        this.config = plugin.getConfigHandler();
+        this.skipPercentage = getSkipPercentage(plugin.getConfigHandler());
         this.logger = plugin.getTCLogger();
+        this.skipScheduler = createSkipScheduler(plugin, world);
     }
 
-    private int getSkipPercentage() {
+    public void scheduleSkip() {
+        if (skipScheduler == null || skipThresholdMet(false)) {
+            return;
+        }
+
+        skipScheduler.scheduleSkip();
+        logger.debug("Scheduled night skip for world \"%s\".", world.getName());
+    }
+
+    private void cancelScheduledSkip() {
+        if (skipScheduler != null) {
+            skipScheduler.cancel();
+        }
+    }
+
+    private NightSkipScheduler createSkipScheduler(final TimeControl plugin, final World world) {
+        if (!world.isGameRule("playersSleepingPercentage")) {
+            // In older versions, players aren't going to leave their beds by themselves,
+            // so we have to manually schedule the skip.
+            return new NightSkipScheduler(plugin, this, SKIPPABLE_SLEEP_TICKS + 1);
+        }
+
+        return null;
+    }
+
+    private int getSkipPercentage(final ConfigHandler config) {
         if (!config.isPercentageEnabled(world)) {
             try {
                 return world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
             } catch (NoSuchFieldError e) {
-                logger.warn("Could not fetch game-rule value 'playersSleepingPercentage!"
+                logger.warn("Failed to read game rule 'playersSleepingPercentage!"
                         + " Please enable players-sleeping-percentage in the plugin configuration.");
                 logger.warn("Using fallback percentage of %d %%.", SKIP_PERCENTAGE_FALLBACK);
 
@@ -44,33 +71,32 @@ public class NightSkipper {
         return config.getConfigPercentage(world);
     }
 
-    private boolean skipThresholdMet() {
-        final int skipPercentage = getSkipPercentage();
-
+    private boolean skipThresholdMet(final boolean onlyFullyRested) {
         if (skipPercentage <= 0) {
             return true;
+        } else if (skipPercentage > 100) {
+            return false;
         }
 
+        final int sleepTickThreshold = onlyFullyRested ? SKIPPABLE_SLEEP_TICKS : 1;
         final List<Player> players = world.getPlayers();
         final int sleeping = (int) players.stream()
-                .filter((player) -> player.getSleepTicks() >= SKIPPABLE_SLEEP_TICKS).count();
+                .filter((player) -> player.getSleepTicks() >= sleepTickThreshold).count();
         final float sleepingPercentage = ((float) sleeping / players.size()) * 100;
 
         return sleepingPercentage >= skipPercentage;
     }
 
-    private boolean shouldSkipNight() {
+    public void skipNight() {
         if (!TimeUtil.sleepAllowed(world)) {
-            return false;
+            return;
         }
 
-        final boolean thresholdMet = skipThresholdMet();
+        if (!skipThresholdMet(true)) {
+            if (!skipThresholdMet(false)) {
+                cancelScheduledSkip();
+            }
 
-        return thresholdMet;
-    }
-
-    public void skipNight() {
-        if (!shouldSkipNight()) {
             return;
         }
 
