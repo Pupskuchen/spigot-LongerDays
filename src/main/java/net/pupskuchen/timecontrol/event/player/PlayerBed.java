@@ -23,7 +23,7 @@ public class PlayerBed implements Listener {
     public PlayerBed(final TimeControl plugin) {
         this.plugin = plugin;
         this.logger = plugin.getTCLogger();
-        this.config = plugin.getConfigManager();
+        this.config = plugin.getConfigHandler();
     }
 
     @EventHandler

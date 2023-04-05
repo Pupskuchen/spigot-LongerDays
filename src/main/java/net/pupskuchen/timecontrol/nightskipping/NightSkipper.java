@@ -24,7 +24,7 @@ public class NightSkipper {
 
     public NightSkipper(final TimeControl plugin, final World world) {
         this.world = world;
-        this.config = plugin.getConfigManager();
+        this.config = plugin.getConfigHandler();
         this.logger = plugin.getTCLogger();
     }
 

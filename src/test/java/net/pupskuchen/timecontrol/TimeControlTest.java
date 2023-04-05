@@ -41,7 +41,7 @@ public class TimeControlTest {
                 MockedConstruction<Runnable> runnableMock = mockConstruction(Runnable.class)) {
             plugin = MockBukkit.load(TimeControl.class);
             // logger = plugin.getTCLogger();
-            config = plugin.getConfigManager();
+            config = plugin.getConfigHandler();
             assertEquals(1, runnableMock.constructed().size());
             // runnable = runnableMock.constructed().get(0);
         }

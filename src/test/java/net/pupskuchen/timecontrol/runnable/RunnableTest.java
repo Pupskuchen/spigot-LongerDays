@@ -39,7 +39,7 @@ public class RunnableTest {
     @BeforeEach
     public void setup() {
         when(plugin.getTCLogger()).thenReturn(logger);
-        when(plugin.getConfigManager()).thenReturn(configManager);
+        when(plugin.getConfigHandler()).thenReturn(configManager);
         server = MockBukkit.mock();
         scheduler = server.getScheduler();
         runnable = new Runnable(plugin);
