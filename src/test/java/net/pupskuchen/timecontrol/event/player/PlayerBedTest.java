@@ -46,7 +46,7 @@ public class PlayerBedTest {
     @BeforeEach
     public void setup() {
         when(plugin.getTCLogger()).thenReturn(logger);
-        when(plugin.getConfigManager()).thenReturn(config);
+        when(plugin.getConfigHandler()).thenReturn(config);
         playerBed = new PlayerBed(plugin);
     }
 

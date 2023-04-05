@@ -43,7 +43,7 @@ public class NightSkipperTest {
     @BeforeEach
     public void setup() {
         when(plugin.getTCLogger()).thenReturn(logger);
-        when(plugin.getConfigManager()).thenReturn(configManager);
+        when(plugin.getConfigHandler()).thenReturn(configManager);
             skipper = new NightSkipper(plugin, world);
     }
 

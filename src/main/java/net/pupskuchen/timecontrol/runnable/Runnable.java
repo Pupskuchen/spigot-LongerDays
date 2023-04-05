@@ -27,7 +27,7 @@ public class Runnable {
     public Runnable(final TimeControl plugin) {
         this.plugin = plugin;
         this.logger = plugin.getTCLogger();
-        this.config = plugin.getConfigManager();
+        this.config = plugin.getConfigHandler();
     }
 
     public void enableForWorld(final World world) {

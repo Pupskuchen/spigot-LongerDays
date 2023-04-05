@@ -67,8 +67,7 @@ public class TimeControl extends JavaPlugin {
         logger.debug("Set up world event listener.");
     }
 
-    // TODO: rename
-    public ConfigHandler getConfigManager() {
+    public ConfigHandler getConfigHandler() {
         return config;
     }
 
