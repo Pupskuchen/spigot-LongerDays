@@ -12,14 +12,13 @@ import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigHandler;
 import net.pupskuchen.timecontrol.config.entity.Durations;
 import net.pupskuchen.timecontrol.util.TCLogger;
-import net.pupskuchen.timecontrol.util.TimeRatio;
 
 public class WorldTimer {
 
     private final TimeControl plugin;
     private final TCLogger logger;
     private final ConfigHandler config;
-    private final Map<World, TimeRatio> worldRatios = new ConcurrentHashMap<>();
+    private final Map<World, WorldState> worldRatios = new ConcurrentHashMap<>();
 
     private BukkitTask runner;
 
@@ -35,14 +34,14 @@ public class WorldTimer {
         }
 
         final Durations durations = new Durations(config.getDay(world), config.getNight(world));
-        final TimeRatio ratios =
-                new TimeRatio(durations, world.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
+        final WorldState state =
+                new WorldState(durations, world.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
 
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-        worldRatios.put(world, ratios);
+        worldRatios.put(world, state);
 
         logger.info("Enabling custom time control for world \"%s\".", world.getName());
-        logger.debug("tick multiplier: day %.2f | night %.2f", ratios.day, ratios.night);
+        logger.debug("tick multiplier: day %.2f | night %.2f", state.dayRatio, state.nightRatio);
 
         startTimer();
     }
@@ -54,16 +53,16 @@ public class WorldTimer {
     }
 
     public void disableForWorld(final World world) {
-        final TimeRatio ratios = this.worldRatios.remove(world);
+        final WorldState state = this.worldRatios.remove(world);
 
-        if (ratios == null) {
+        if (state == null) {
             return;
         }
 
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, ratios.originalDoDaylightCycle);
+        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, state.originalDoDaylightCycle);
         logger.info("Disabling custom time control for world \"%s\".", world.getName());
         logger.debug("Restored game rule \"%s\" to \"%b\"", GameRule.DO_DAYLIGHT_CYCLE.getName(),
-                ratios.originalDoDaylightCycle);
+                state.originalDoDaylightCycle);
 
         if (worldRatios.size() == 0) {
             stopTimer();
@@ -88,7 +87,7 @@ public class WorldTimer {
         runner = new BukkitRunnable() {
             @Override
             public void run() {
-                for (Entry<World, TimeRatio> entry : worldRatios.entrySet()) {
+                for (Entry<World, WorldState> entry : worldRatios.entrySet()) {
                     updateWorld(entry.getKey(), entry.getValue());
                 }
             }
@@ -108,23 +107,23 @@ public class WorldTimer {
         logger.debug("Custom time control stopped.");
     }
 
-    private void updateWorld(final World world, final TimeRatio ratios) {
+    private void updateWorld(final World world, final WorldState state) {
         final long time = world.getTime();
-        final double ratio = ratios.getApplicableRatio(time);
+        final double ratio = state.getApplicableRatio(time);
 
         if (ratio > 1.0) {
             // speed up
             world.setTime(time + Math.round(ratio));
-            ratios.setIntermediateTicks(0);
+            state.setIntermediateTicks(0);
         } else if (ratio < 1.0) {
             // slow down
-            final long count = ratios.getIntermediateTicks();
+            final long count = state.getIntermediateTicks();
 
             if (count <= 0) {
                 world.setTime(time + 1);
-                ratios.setIntermediateTicks(Math.round(1.0 / ratio) - 1);
+                state.setIntermediateTicks(Math.round(1.0 / ratio) - 1);
             } else {
-                ratios.setIntermediateTicks(count - 1);
+                state.setIntermediateTicks(count - 1);
             }
         } else {
             // Normal

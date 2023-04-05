@@ -1,11 +1,12 @@
-package net.pupskuchen.timecontrol.util;
+package net.pupskuchen.timecontrol.timer;
 
 import net.pupskuchen.timecontrol.config.entity.Durations;
+import net.pupskuchen.timecontrol.util.TickUtil;
+import net.pupskuchen.timecontrol.util.TimeUtil;
 
-// TODO: rename
-public class TimeRatio {
-    public final double day;
-    public final double night;
+public class WorldState {
+    public final double dayRatio;
+    public final double nightRatio;
 
     public final boolean originalDoDaylightCycle;
 
@@ -14,9 +15,9 @@ public class TimeRatio {
      */
     private long intermediateTicks = 0;
 
-    public TimeRatio(final Durations durations, final boolean doDaylightCycle) {
-        day = TickUtil.cycleMinsToTickRatio(durations.day);
-        night = TickUtil.cycleMinsToTickRatio(durations.night);
+    public WorldState(final Durations durations, final boolean doDaylightCycle) {
+        dayRatio = TickUtil.cycleMinsToTickRatio(durations.day);
+        nightRatio = TickUtil.cycleMinsToTickRatio(durations.night);
         this.originalDoDaylightCycle = doDaylightCycle;
     }
 
@@ -29,6 +30,6 @@ public class TimeRatio {
     }
 
     public double getApplicableRatio(final long worldTime) {
-        return TimeUtil.isDay(worldTime) ? day : night;
+        return TimeUtil.isDay(worldTime) ? dayRatio : nightRatio;
     }
 }
