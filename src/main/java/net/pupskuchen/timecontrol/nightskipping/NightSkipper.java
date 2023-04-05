@@ -25,8 +25,8 @@ public class NightSkipper {
 
     public NightSkipper(final TimeControl plugin, final World world) {
         this.world = world;
-        this.skipPercentage = getSkipPercentage(plugin.getConfigHandler());
         this.logger = plugin.getTCLogger();
+        this.skipPercentage = getSkipPercentage(plugin.getConfigHandler());
         this.skipScheduler = createSkipScheduler(plugin, world);
     }
 
