@@ -1,4 +1,4 @@
-package net.pupskuchen.timecontrol.runnable;
+package net.pupskuchen.timecontrol.timer;
 
 import java.util.List;
 import java.util.Map;
@@ -14,8 +14,7 @@ import net.pupskuchen.timecontrol.config.entity.Durations;
 import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TimeRatio;
 
-// TODO: rename
-public class Runnable {
+public class WorldTimer {
 
     private final TimeControl plugin;
     private final TCLogger logger;
@@ -24,7 +23,7 @@ public class Runnable {
 
     private BukkitTask runner;
 
-    public Runnable(final TimeControl plugin) {
+    public WorldTimer(final TimeControl plugin) {
         this.plugin = plugin;
         this.logger = plugin.getTCLogger();
         this.config = plugin.getConfigHandler();
