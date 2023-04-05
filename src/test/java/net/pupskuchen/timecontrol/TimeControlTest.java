@@ -12,7 +12,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.WorldMock;
 import net.pupskuchen.timecontrol.config.ConfigHandler;
-import net.pupskuchen.timecontrol.runnable.Runnable;
+import net.pupskuchen.timecontrol.timer.WorldTimer;
 import net.pupskuchen.timecontrol.util.TCLogger;
 
 public class TimeControlTest {
@@ -38,11 +38,11 @@ public class TimeControlTest {
 
         try (MockedConstruction<ConfigHandler> configMock = mockConstruction(ConfigHandler.class);
                 MockedConstruction<TCLogger> loggerMock = mockConstruction(TCLogger.class);
-                MockedConstruction<Runnable> runnableMock = mockConstruction(Runnable.class)) {
+                MockedConstruction<WorldTimer> timerMock = mockConstruction(WorldTimer.class)) {
             plugin = MockBukkit.load(TimeControl.class);
             // logger = plugin.getTCLogger();
             config = plugin.getConfigHandler();
-            assertEquals(1, runnableMock.constructed().size());
+            assertEquals(1, timerMock.constructed().size());
             // runnable = runnableMock.constructed().get(0);
         }
     }

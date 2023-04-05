@@ -20,6 +20,7 @@ import be.seeseemelk.mockbukkit.WorldMock;
 import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
 import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigHandler;
+import net.pupskuchen.timecontrol.timer.WorldTimer;
 import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TickUtil;
 
@@ -32,7 +33,7 @@ public class RunnableTest {
     @Mock
     final TCLogger logger = mock(TCLogger.class);
 
-    private Runnable runnable;
+    private WorldTimer worldTimer;
     private ServerMock server;
     private BukkitSchedulerMock scheduler;
 
@@ -42,7 +43,7 @@ public class RunnableTest {
         when(plugin.getConfigHandler()).thenReturn(configManager);
         server = MockBukkit.mock();
         scheduler = server.getScheduler();
-        runnable = new Runnable(plugin);
+        worldTimer = new WorldTimer(plugin);
     }
 
     @AfterEach
@@ -73,7 +74,7 @@ public class RunnableTest {
             mock.when(() -> TickUtil.cycleMinsToTickRatio(5)).thenReturn(2d);
             mock.when(() -> TickUtil.cycleMinsToTickRatio(20)).thenReturn(0.5d);
 
-            runnable.enableForWorlds(Arrays.asList(world1, world1, world2, disabledWorld));
+            worldTimer.enableForWorlds(Arrays.asList(world1, world1, world2, disabledWorld));
 
             verify(logger, times(1)).info("Enabling custom time control for world \"%s\".",
                     "world_one");
@@ -103,7 +104,7 @@ public class RunnableTest {
         try (MockedStatic<TickUtil> mock = mockStatic(TickUtil.class)) {
             mock.when(() -> TickUtil.cycleMinsToTickRatio(10)).thenReturn(1d);
 
-            runnable.enableForWorld(world);
+            worldTimer.enableForWorld(world);
 
             assertEquals(0, world.getTime());
             scheduler.performTicks(2);

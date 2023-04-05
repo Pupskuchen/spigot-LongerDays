@@ -8,14 +8,14 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import net.pupskuchen.timecontrol.config.ConfigHandler;
 import net.pupskuchen.timecontrol.event.player.PlayerBed;
 import net.pupskuchen.timecontrol.event.world.WorldEvents;
-import net.pupskuchen.timecontrol.runnable.Runnable;
+import net.pupskuchen.timecontrol.timer.WorldTimer;
 import net.pupskuchen.timecontrol.util.TCLogger;
 
 public class TimeControl extends JavaPlugin {
 
     private ConfigHandler config;
     private TCLogger logger;
-    private Runnable runnable;
+    private WorldTimer worldTimer;
 
     // needed for the plugin to actually be able to be loaded in a server
     public TimeControl() {}
@@ -32,18 +32,18 @@ public class TimeControl extends JavaPlugin {
 
         logger = new TCLogger(this);
         registerConfig();
-        runnable = new Runnable(this);
+        worldTimer = new WorldTimer(this);
 
         registerPlayerBedEvents(pluginManager);
         registerWorldEvents(pluginManager);
 
-        runnable.enableForWorlds(config.getWorlds());
+        worldTimer.enableForWorlds(config.getWorlds());
     }
 
     @Override
     public void onDisable() {
-        runnable.disableAll();
-        runnable = null;
+        worldTimer.disableAll();
+        worldTimer = null;
         logger = null;
         config = null;
     }
@@ -63,7 +63,7 @@ public class TimeControl extends JavaPlugin {
     }
 
     private void registerWorldEvents(final PluginManager pluginManager) {
-        pluginManager.registerEvents(new WorldEvents(runnable), this);
+        pluginManager.registerEvents(new WorldEvents(worldTimer), this);
         logger.debug("Set up world event listener.");
     }
 

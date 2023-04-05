@@ -4,23 +4,23 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import net.pupskuchen.timecontrol.runnable.Runnable;
+import net.pupskuchen.timecontrol.timer.WorldTimer;
 
 public class WorldEvents implements Listener {
 
-    private final Runnable runnable;
+    private final WorldTimer worldTimer;
 
-    public WorldEvents(final Runnable runnable) {
-        this.runnable = runnable;
+    public WorldEvents(final WorldTimer worldTimer) {
+        this.worldTimer = worldTimer;
     }
 
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
-        this.runnable.enableForWorld(event.getWorld());
+        this.worldTimer.enableForWorld(event.getWorld());
     }
 
     @EventHandler
     public void onWorldLoad(WorldUnloadEvent event) {
-        this.runnable.disableForWorld(event.getWorld());
+        this.worldTimer.disableForWorld(event.getWorld());
     }
 }
