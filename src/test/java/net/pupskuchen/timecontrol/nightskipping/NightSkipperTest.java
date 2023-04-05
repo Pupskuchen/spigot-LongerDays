@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.bukkit.GameRule;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,14 +36,18 @@ public class NightSkipperTest {
     final TCLogger logger = mock(TCLogger.class);
     @Mock
     final World world = mock(World.class);
+    @Mock
+    final Server server = mock(Server.class);
 
     List<List<Player>> players = List.of(this.getPlayers(0, 50, 0), this.getPlayers(100, 50, 0),
             this.getPlayers(100, 100, 50), this.getPlayers(100, 100, 100));
 
     @BeforeEach
     public void setup() {
+        when(server.getBukkitVersion()).thenReturn("1.19-something");
         when(plugin.getTCLogger()).thenReturn(logger);
         when(plugin.getConfigHandler()).thenReturn(configManager);
+        when(plugin.getServer()).thenReturn(server);
     }
 
     private Player getPlayer(int sleepTicks) {
@@ -118,8 +123,9 @@ public class NightSkipperTest {
             verify(world, times(0)).setTime(anyLong());
             skipper.skipNight();
             verify(world, times(1)).setTime(123);
-            verify(logger, times(1)).warn("Failed to read game rule 'playersSleepingPercentage!"
-            + " Please enable players-sleeping-percentage in the plugin configuration.");
+            verify(logger, times(1)).warn("Failed to read game rule \"playersSleepingPercentage\" for world \"%s\"!",
+                "fancy-world");
+            verify(logger, times(1)).warn("Please enable players-sleeping-percentage in the plugin config.");
             verify(logger, times(1)).warn("Using fallback percentage of %d %%.", 100);
 
             verify(logger, times(1)).info("Skipped the night on world \"%s\".", "fancy-world");        }
