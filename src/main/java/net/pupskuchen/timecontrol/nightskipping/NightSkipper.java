@@ -23,11 +23,21 @@ public class NightSkipper {
     private final TCLogger logger;
     private final NightSkipScheduler skipScheduler;
 
+    /**
+     * In MC 1.13, when all players go to bed, the last player won't have to sleep as long for the
+     * night to be skipped. Therefore, if the required sleeping percentage is 100 %, we'll allow
+     * skipping right when the last person goes to bed - but only for 1.13.
+     */
+    private final boolean allowAllAsleepInstantSkip;
+
     public NightSkipper(final TimeControl plugin, final World world) {
         this.world = world;
         this.logger = plugin.getTCLogger();
         this.skipPercentage = getSkipPercentage(plugin.getConfigHandler());
         this.skipScheduler = createSkipScheduler(plugin, world);
+
+        this.allowAllAsleepInstantSkip =
+                plugin.getServer().getBukkitVersion().startsWith("1.13") && skipPercentage == 100;
     }
 
     public void scheduleSkip() {
@@ -60,8 +70,10 @@ public class NightSkipper {
             try {
                 return world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
             } catch (NoSuchFieldError e) {
-                logger.warn("Failed to read game rule 'playersSleepingPercentage!"
-                        + " Please enable players-sleeping-percentage in the plugin configuration.");
+                logger.warn(
+                        "Failed to read game rule \"playersSleepingPercentage\" for world \"%s\"!",
+                        world.getName());
+                logger.warn("Please enable players-sleeping-percentage in the plugin config.");
                 logger.warn("Using fallback percentage of %d %%.", SKIP_PERCENTAGE_FALLBACK);
 
                 return SKIP_PERCENTAGE_FALLBACK;
@@ -92,7 +104,7 @@ public class NightSkipper {
             return;
         }
 
-        if (!skipThresholdMet(true)) {
+        if (!skipThresholdMet(!allowAllAsleepInstantSkip)) {
             if (!skipThresholdMet(false)) {
                 cancelScheduledSkip();
             }
