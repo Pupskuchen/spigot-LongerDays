@@ -1,6 +1,7 @@
 package net.pupskuchen.timecontrol;
 
 import java.io.File;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,6 +33,7 @@ public class TimeControl extends JavaPlugin {
 
         logger = new TCLogger(this);
         registerConfig();
+        registerMetrics();
         worldTimer = new WorldTimer(this);
 
         registerPlayerBedEvents(pluginManager);
@@ -55,6 +57,10 @@ public class TimeControl extends JavaPlugin {
         config = new ConfigHandler(this);
         config.initializeDebugMode();
         config.validate();
+    }
+
+    private void registerMetrics() {
+        new Metrics(this, 18202);
     }
 
     private void registerPlayerBedEvents(final PluginManager pluginManager) {

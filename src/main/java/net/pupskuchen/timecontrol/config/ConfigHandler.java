@@ -36,7 +36,7 @@ public class ConfigHandler {
     }
 
     public void initializeDebugMode() {
-        debug = pluginConfig.get(DEBUG);
+        debug = pluginConfig.get(DEBUG, false);
         plugin.getTCLogger().setDebug(debug);
     }
 
