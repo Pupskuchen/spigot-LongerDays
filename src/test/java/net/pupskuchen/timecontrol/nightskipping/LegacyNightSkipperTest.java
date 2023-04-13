@@ -23,7 +23,7 @@ import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TimeUtil;
 
 /**
- * Tests for 1.13 (manual skip scheduling)
+ * Tests for 1.13-1.16 (manual skip scheduling / no playersSleepingPercentage game rule)
  */
 public class LegacyNightSkipperTest {
     private final TimeControl plugin = mock(TimeControl.class);
@@ -63,9 +63,27 @@ public class LegacyNightSkipperTest {
             mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
 
             skipper.scheduleSkip();
-            server.getScheduler().performTicks(100);
-            verify(world, times(0)).setTime(anyLong());
+            verify(world).setTime(anyLong());
+        }
+    }
 
+    @Test
+    public void scheduleForSinglePlayer() {
+        Player player =
+                when(mock(Player.class).getSleepTicks()).thenReturn(0).thenReturn(100).getMock();
+        List<Player> worldPlayers = List.of(player);
+        when(config.isPercentageEnabled(world)).thenReturn(true);
+        when(config.getConfigPercentage(world)).thenReturn(50);
+        when(world.getPlayers()).thenReturn(worldPlayers);
+        final NightSkipper skipper = new NightSkipper(plugin, world);
+
+        try (MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
+            mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
+
+            skipper.scheduleSkip();
+            verify(world, times(0)).setTime(anyLong());;
+            server.getScheduler().performTicks(100);
+            verify(world, times(0)).setTime(anyLong());;
             server.getScheduler().performOneTick();
             verify(world).setTime(anyLong());
         }
@@ -88,16 +106,51 @@ public class LegacyNightSkipperTest {
     }
 
     @Test
-    public void dontScheduleWhenThresholdMet() {
+    public void noInstantSkipWhenNotEveryoneAsleep() {
         when(config.isPercentageEnabled(world)).thenReturn(true);
         when(config.getConfigPercentage(world)).thenReturn(100);
-        when(world.getPlayers()).thenReturn(players.get(2));
-
+        when(world.getPlayers()).thenReturn(players.get(0));
         final NightSkipper skipper = new NightSkipper(plugin, world);
+
         skipper.scheduleSkip();
         server.getScheduler().performTicks(110);
 
-        verifyNoInteractions(logger);
         verify(world, times(0)).setTime(anyLong());
+    }
+
+    @Test
+    public void dontScheduleWhenThresholdMet() {
+        when(config.isPercentageEnabled(world)).thenReturn(true);
+        when(config.getConfigPercentage(world)).thenReturn(50);
+        when(world.getPlayers()).thenReturn(players.get(2));
+        when(server.getBukkitVersion()).thenReturn("1.15-something");
+
+        try(MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
+            mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
+            final NightSkipper skipper = new NightSkipper(plugin, world);
+            skipper.scheduleSkip();
+            server.getScheduler().performTicks(110);
+
+            verifyNoInteractions(logger);
+            verify(world, times(0)).setTime(anyLong());
+        }
+    }
+
+    @Test
+    public void cancelScheduledSkip() {
+        when(config.isPercentageEnabled(world)).thenReturn(true);
+        when(config.getConfigPercentage(world)).thenReturn(100);
+        when(world.getPlayers()).thenReturn(players.get(2)).thenReturn(players.get(0));
+
+        try(MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
+            mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
+
+            final NightSkipper skipper = new NightSkipper(plugin, world);
+            skipper.scheduleSkip();
+            skipper.skipNight();
+            server.getScheduler().performTicks(110);
+
+            verify(world, times(0)).setTime(anyLong());
+        }
     }
 }

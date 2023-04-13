@@ -57,7 +57,9 @@ public class PlayerBed implements Listener {
         final Player player = event.getPlayer();
         final World world = player.getWorld();
 
-        if (!config.isWorldEnabled(world) || !config.isNightSkippingEnabled(world)) {
+        if (player.isSleepingIgnored()
+                || player.getSleepTicks() < NightSkipper.SKIPPABLE_SLEEP_TICKS
+                || !config.isWorldEnabled(world) || !config.isNightSkippingEnabled(world)) {
             return;
         }
 
