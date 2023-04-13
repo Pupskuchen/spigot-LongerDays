@@ -9,7 +9,7 @@ import net.pupskuchen.pluginconfig.annotations.Serialize;
 @EntityMapSerializable()
 public class TimeControlConfig {
     @Serialize
-    protected Durations durations;
+    protected Durations<Double, ?> durations;
     @Serialize("night-skipping.enabled")
     protected Boolean nightSkippingEnabled;
     @Serialize("players-sleeping-percentage.enabled")
@@ -17,12 +17,12 @@ public class TimeControlConfig {
     @Serialize("players-sleeping-percentage.percentage")
     protected Integer playersSleepingPercentage;
 
-    public Integer getDurationDay() {
-        return durations.day;
+    public Durations<Double, ?> getDurations() {
+        return durations;
     }
 
-    public Integer getDurationNight() {
-        return durations.night;
+    public void setDurations(final Durations<Double, ?> durations) {
+        this.durations = durations;
     }
 
     public Boolean getNightSkippingEnabled() {

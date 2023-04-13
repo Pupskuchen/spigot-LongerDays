@@ -14,11 +14,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class TimeUtilTest {
 
     @Test
-    public void timeRangeDay() {
-        final TimeRange range = TimeUtil.DAY;
-
-        assertEquals(0, range.start);
-        assertEquals(12999, range.end);
+    public void timeRangeDaylightCycle() {
+        assertEquals(0, TimeUtil.DAYTIME.start);
+        assertEquals(TimeUtil.SUNSET.start - 1, TimeUtil.DAYTIME.end);
+        assertEquals(TimeUtil.DAYTIME.end + 1, TimeUtil.SUNSET.start);
+        assertEquals(TimeUtil.NIGHTTIME.start - 1, TimeUtil.SUNSET.end);
+        assertEquals(TimeUtil.SUNSET.end + 1, TimeUtil.NIGHTTIME.start);
+        assertEquals(TimeUtil.SUNRISE.start - 1, TimeUtil.NIGHTTIME.end);
+        assertEquals(TimeUtil.NIGHTTIME.end + 1, TimeUtil.SUNRISE.start);
+        assertEquals(23999, TimeUtil.SUNRISE.end);
     }
 
     @Test
@@ -35,15 +39,6 @@ public class TimeUtilTest {
 
         assertEquals(12010, range.start);
         assertEquals(23991, range.end);
-    }
-
-    @Test
-    public void isDay(@Mock World mockWorld) {
-        assertTrue(TimeUtil.isDay(13L));
-        assertFalse(TimeUtil.isDay(14230L));
-        assertTrue(TimeUtil.isDay(0L));
-        assertFalse(TimeUtil.isDay(23000L));
-        assertFalse(TimeUtil.isDay(-1L));
     }
 
     @Test

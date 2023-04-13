@@ -9,8 +9,10 @@ import net.pupskuchen.pluginconfig.PluginConfig;
 import net.pupskuchen.pluginconfig.entity.ConfigEntry;
 import net.pupskuchen.pluginconfig.entity.ConfigList;
 import net.pupskuchen.timecontrol.TimeControl;
+import net.pupskuchen.timecontrol.config.entity.Durations;
 import net.pupskuchen.timecontrol.config.entity.TimeControlConfig;
 import net.pupskuchen.timecontrol.config.entity.WorldTimeControlConfig;
+import net.pupskuchen.timecontrol.util.DurationUtil;
 
 public class ConfigHandler {
     private static final ConfigEntry<Boolean> DEBUG = new ConfigEntry<>("debug", Boolean.class);
@@ -48,12 +50,10 @@ public class ConfigHandler {
         return worldConfigs.get(world.getName());
     }
 
-    public int getDay(World world) {
-        return getWorldConfig(world).getDurationDay();
-    }
-
-    public int getNight(World world) {
-        return getWorldConfig(world).getDurationNight();
+    // casting should be fine, we're normalizing the durations on init
+    @SuppressWarnings("unchecked")
+    public Durations<Double, Double> getDurations(World world) {
+        return (Durations<Double, Double>) getWorldConfig(world).getDurations();
     }
 
     public boolean isPercentageEnabled(World world) {
@@ -89,6 +89,11 @@ public class ConfigHandler {
 
     private Map<String, WorldTimeControlConfig> loadWorlds(
             List<WorldTimeControlConfig> worldConfigs) {
+
+        for (WorldTimeControlConfig config : worldConfigs) {
+            config.setDurations(DurationUtil.normalize(config.getDurations()));
+        }
+
         return worldConfigs.stream()
                 .collect(Collectors.toMap(WorldTimeControlConfig::getName, config -> config));
     }

@@ -10,7 +10,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigHandler;
-import net.pupskuchen.timecontrol.config.entity.Durations;
 import net.pupskuchen.timecontrol.util.TCLogger;
 
 public class WorldTimer {
@@ -33,15 +32,15 @@ public class WorldTimer {
             return;
         }
 
-        final Durations durations = new Durations(config.getDay(world), config.getNight(world));
-        final WorldState state =
-                new WorldState(durations, world.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
+        final WorldState state = new WorldState(config.getDurations(world),
+                world.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
 
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
         worldRatios.put(world, state);
 
         logger.info("Enabling custom time control for world \"%s\".", world.getName());
-        logger.debug("tick multiplier: day %.2f | night %.2f", state.dayRatio, state.nightRatio);
+        logger.debug("time multipliers: day %.3f / night %.3f / sunset %.3f / sunrise %.3f",
+                state.ratios.day, state.ratios.night, state.ratios.sunset, state.ratios.sunrise);
 
         startTimer();
     }

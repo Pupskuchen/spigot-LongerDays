@@ -5,9 +5,7 @@ import net.pupskuchen.timecontrol.util.TickUtil;
 import net.pupskuchen.timecontrol.util.TimeUtil;
 
 public class WorldState {
-    public final double dayRatio;
-    public final double nightRatio;
-
+    public final Durations<Double, Double> ratios;
     public final boolean originalDoDaylightCycle;
 
     /**
@@ -15,9 +13,12 @@ public class WorldState {
      */
     private long intermediateTicks = 0;
 
-    public WorldState(final Durations durations, final boolean doDaylightCycle) {
-        dayRatio = TickUtil.cycleMinsToTickRatio(durations.day);
-        nightRatio = TickUtil.cycleMinsToTickRatio(durations.night);
+    public WorldState(final Durations<Double, Double> durations, final boolean doDaylightCycle) {
+        ratios = new Durations<>(
+                TickUtil.cycleMinsToTickRatio(durations.day, TimeUtil.DAYTIME.duration()),
+                TickUtil.cycleMinsToTickRatio(durations.night, TimeUtil.NIGHTTIME.duration()),
+                TickUtil.cycleMinsToTickRatio(durations.sunset, TimeUtil.SUNSET.duration()),
+                TickUtil.cycleMinsToTickRatio(durations.sunrise, TimeUtil.SUNRISE.duration()));
         this.originalDoDaylightCycle = doDaylightCycle;
     }
 
@@ -30,6 +31,14 @@ public class WorldState {
     }
 
     public double getApplicableRatio(final long worldTime) {
-        return TimeUtil.isDay(worldTime) ? dayRatio : nightRatio;
+        if (TimeUtil.DAYTIME.isInRange(worldTime)) {
+            return ratios.day;
+        } else if (TimeUtil.NIGHTTIME.isInRange(worldTime)) {
+            return ratios.night;
+        } else if (TimeUtil.SUNRISE.isInRange(worldTime)) {
+            return ratios.sunrise;
+        } else {
+            return ratios.sunset;
+        }
     }
 }

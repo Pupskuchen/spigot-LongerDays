@@ -12,4 +12,10 @@ public class TimeRange {
     public boolean isInRange(final long time) {
         return time >= start && time <= end;
     }
+
+    public int duration() {
+        // Since we're thinking in ticks here, even if start equals end, we still count it as 1 tick
+        // duration, so we add 1 here.
+        return end - start + 1;
+    }
 }
