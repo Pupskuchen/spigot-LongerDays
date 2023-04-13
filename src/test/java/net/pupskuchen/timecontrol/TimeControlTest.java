@@ -14,6 +14,10 @@ import net.pupskuchen.timecontrol.timer.WorldTimer;
 import net.pupskuchen.timecontrol.util.TCLogger;
 
 public class TimeControlTest {
+    static {
+        System.setProperty("bstats.relocatecheck", "false");
+    }
+
     @BeforeEach
     public void setUp() {
         MockBukkit.mock();
