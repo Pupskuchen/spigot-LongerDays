@@ -1,11 +1,16 @@
 package net.pupskuchen.timecontrol.timer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import java.util.Arrays;
+import org.bukkit.GameRule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,10 +74,9 @@ public class WorldTimerTest {
 
         worldTimer.enableForWorlds(Arrays.asList(world1, world1, world2, disabledWorld));
 
-        verify(logger, times(1)).info("Enabling custom time control for world \"%s\".",
-                "world_one");
-        verify(logger, times(1)).info("Enabling custom time control for world \"%s\".",
-                "world_two");
+        verify(logger).info("Enabling custom time control for world \"%s\".", "world_one");
+        verify(logger).info("Enabling custom time control for world \"%s\".", "world_two");
+        verify(logger).debug("Custom time control started.");
 
         assertEquals(0, world1.getTime());
         assertEquals(13000, world2.getTime());
@@ -98,5 +102,61 @@ public class WorldTimerTest {
         assertEquals(0, world.getTime());
         scheduler.performTicks(2);
         assertEquals(2, world.getTime());
+    }
+
+    @Test
+    public void disableWorld() {
+        WorldMock world1 = server.addSimpleWorld("world_one");
+        WorldMock world2 = server.addSimpleWorld("world_two");
+        WorldMock disabledWorld = server.addSimpleWorld("world_disabled");
+
+        world1.setTime(0);
+        world2.setTime(13000);
+        disabledWorld.setTime(0);
+
+        world1.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+        world2.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        disabledWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+
+        when(configManager.isWorldEnabled(world1)).thenReturn(true);
+        when(configManager.isWorldEnabled(world2)).thenReturn(true);
+
+        when(configManager.getDurations(world1))
+                .thenReturn(new Durations<Double, Double>(20d, 5d, 20d, 5d));
+        when(configManager.getDurations(world2))
+                .thenReturn(new Durations<Double, Double>(40d, 5d, 40d, 5d));
+
+        worldTimer.enableForWorlds(Arrays.asList(world1, world2));
+
+        assertFalse(world1.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
+        assertFalse(world2.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
+        assertTrue(disabledWorld.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
+
+        scheduler.performTicks(2);
+        assertEquals(1, world1.getTime());
+        assertEquals(13004, world2.getTime());
+
+        reset(logger);
+
+        worldTimer.disableForWorld(disabledWorld);
+        verifyNoInteractions(logger);
+
+        worldTimer.disableForWorld(world1);
+        assertTrue(world1.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
+        verify(logger).info("Disabling custom time control for world \"%s\".", "world_one");
+        verify(logger, times(0)).debug("Custom time control stopped.");
+
+        scheduler.performTicks(2);
+        assertEquals(1, world1.getTime());
+        assertEquals(13008, world2.getTime());
+
+        worldTimer.disableAll();
+        verify(logger).info("Disabling custom time control for world \"%s\".", "world_two");
+        assertFalse(world2.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE));
+        verify(logger).debug("Custom time control stopped.");
+
+        scheduler.performTicks(2);
+        assertEquals(1, world1.getTime());
+        assertEquals(13008, world2.getTime());
     }
 }
