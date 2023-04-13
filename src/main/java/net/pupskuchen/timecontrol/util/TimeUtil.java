@@ -15,10 +15,6 @@ public final class TimeUtil {
         return DAY.isInRange(time);
     }
 
-    public static boolean isNight(final long time) {
-        return !isDay(time);
-    }
-
     public static boolean sleepAllowed(final World world) {
         if (world.isThundering()) {
             return true;

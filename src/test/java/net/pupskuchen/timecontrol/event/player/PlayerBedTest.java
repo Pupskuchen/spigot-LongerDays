@@ -69,6 +69,29 @@ public class PlayerBedTest {
     }
 
     @Test
+    public void doNothingOnEnterIfWorldDisabled() {
+        when(config.isWorldEnabled(world)).thenReturn(false);
+        this.stubEnterEvent();
+        when(player.getWorld()).thenReturn(world);
+
+        playerBed.onPlayerBedEnter(enterEvent);
+
+        verify(enterEvent, times(0)).getBedEnterResult();
+    }
+
+    @Test
+    public void doNothingOnEnterIfNightSkippingDisabled() {
+        when(config.isWorldEnabled(world)).thenReturn(true);
+        when(config.isNightSkippingEnabled(world)).thenReturn(false);
+        this.stubEnterEvent();
+        when(player.getWorld()).thenReturn(world);
+
+        playerBed.onPlayerBedEnter(enterEvent);
+
+        verify(enterEvent, times(0)).getBedEnterResult();
+    }
+
+    @Test
     public void doNothingOnEnterIfEnterNotOk() {
         when(config.isWorldEnabled(world)).thenReturn(true);
         when(config.isNightSkippingEnabled(world)).thenReturn(true);
@@ -121,6 +144,29 @@ public class PlayerBedTest {
             verify(logger, times(2)).debug("%s (@ %s) entered a bed at %d", "somePlayerName", "someWorld", 15000L);
             verify(skipper, times(2)).scheduleSkip();
         }
+    }
+
+    @Test
+    public void doNothingOnLeaveIfWorldDisabled() {
+        when(config.isWorldEnabled(world)).thenReturn(false);
+        this.stubLeaveEvent();
+        when(player.getWorld()).thenReturn(world);
+
+        playerBed.onPlayerBedLeave(leaveEvent);
+
+        verify(world, times(0)).getName();
+    }
+
+    @Test
+    public void doNothingOnLeaveIfNightSkippingDisabled() {
+        when(config.isWorldEnabled(world)).thenReturn(true);
+        when(config.isNightSkippingEnabled(world)).thenReturn(false);
+        this.stubLeaveEvent();
+        when(player.getWorld()).thenReturn(world);
+
+        playerBed.onPlayerBedLeave(leaveEvent);
+
+        verify(world, times(0)).getName();
     }
 
     @Test
