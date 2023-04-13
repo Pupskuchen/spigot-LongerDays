@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.bukkit.GameRule;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -145,8 +146,6 @@ public class NightSkipperTest {
 
     @Test
     public void doNotScheduleSkip() {
-        when(configManager.isPercentageEnabled(world)).thenReturn(true);
-        when(configManager.getConfigPercentage(world)).thenReturn( 50);
         final NightSkipper skipper = new NightSkipper(plugin, world);
         reset(world);
 
@@ -185,6 +184,29 @@ public class NightSkipperTest {
             skipper.skipNight();
             verify(world, times(0)).setTime(anyLong());
             verifyNoInteractions(logger);
+        }
+    }
+
+    @Test
+    public void shouldIgnoreSleepingIgnoredPlayers() {
+        List<Player> notIgnored = getPlayers(100, 100);
+        List<Player> ignored = getPlayers(0, 10, 0).stream()
+                .map(player -> (Player)when(player.isSleepingIgnored()).thenReturn(true).getMock())
+                .collect(Collectors.toList());
+        List<Player> allPlayers = Stream.concat(notIgnored.stream(), ignored.stream()).collect(Collectors.toList());
+
+        when(configManager.isPercentageEnabled(world)).thenReturn(false);
+        when(world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE)).thenReturn(100);
+        when(world.getName()).thenReturn("fancy-world");
+        when(world.getPlayers()).thenReturn(allPlayers);
+        final NightSkipper skipper = new NightSkipper(plugin, world);
+
+        try(MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
+            mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
+            mock.when(() -> TimeUtil.getWakeTime(world)).thenReturn(123);
+            skipper.skipNight();
+            verify(world).getPlayers();
+            verify(world, times(1)).setTime(123);
         }
     }
 }

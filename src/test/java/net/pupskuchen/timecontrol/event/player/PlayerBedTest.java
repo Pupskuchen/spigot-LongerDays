@@ -148,6 +148,8 @@ public class PlayerBedTest {
 
     @Test
     public void doNothingOnLeaveIfWorldDisabled() {
+        when(player.isSleepingIgnored()).thenReturn(false);
+        when(player.getSleepTicks()).thenReturn(100);
         when(config.isWorldEnabled(world)).thenReturn(false);
         this.stubLeaveEvent();
         when(player.getWorld()).thenReturn(world);
@@ -159,6 +161,8 @@ public class PlayerBedTest {
 
     @Test
     public void doNothingOnLeaveIfNightSkippingDisabled() {
+        when(player.isSleepingIgnored()).thenReturn(false);
+        when(player.getSleepTicks()).thenReturn(100);
         when(config.isWorldEnabled(world)).thenReturn(true);
         when(config.isNightSkippingEnabled(world)).thenReturn(false);
         this.stubLeaveEvent();
@@ -170,12 +174,39 @@ public class PlayerBedTest {
     }
 
     @Test
+    public void doNothingOnLeaveIfPlayerSleepingIgnored() {
+        when(player.isSleepingIgnored()).thenReturn(true);
+        when(player.getWorld()).thenReturn(world);
+        this.stubLeaveEvent();
+
+        playerBed.onPlayerBedLeave(leaveEvent);
+
+        verify(world, times(0)).getName();
+        verifyNoInteractions(logger);
+    }
+
+    @Test
+    public void doNothingOnLeaveIfPlayerSleepingTooShort() {
+        when(player.isSleepingIgnored()).thenReturn(false);
+        when(player.getSleepTicks()).thenReturn(99);
+        when(player.getWorld()).thenReturn(world);
+        this.stubLeaveEvent();
+
+        playerBed.onPlayerBedLeave(leaveEvent);
+
+        verify(world, times(0)).getName();
+        verifyNoInteractions(logger);
+    }
+
+    @Test
     public void doNothingOnLeaveIfNoSkipperExists() {
         when(config.isWorldEnabled(world)).thenReturn(true);
         when(config.isNightSkippingEnabled(world)).thenReturn(true);
         this.stubLeaveEvent();
         this.stubPlayer();
         this.stubWorld();
+        when(player.isSleepingIgnored()).thenReturn(false);
+        when(player.getSleepTicks()).thenReturn(100);
 
         try (MockedConstruction<NightSkipper> mock = mockConstruction(NightSkipper.class)) {
             playerBed.onPlayerBedLeave(leaveEvent);
@@ -188,6 +219,8 @@ public class PlayerBedTest {
 
     @Test
     public void skipNightOnLeave() {
+        when(player.isSleepingIgnored()).thenReturn(false);
+        when(player.getSleepTicks()).thenReturn(100);
         when(config.isWorldEnabled(world)).thenReturn(true);
         when(config.isNightSkippingEnabled(world)).thenReturn(true);
         this.stubEnterEvent();

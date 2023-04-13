@@ -1,6 +1,7 @@
 package net.pupskuchen.timecontrol.nightskipping;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -15,33 +16,39 @@ public class NightSkipper {
      * actually get kicked out after 100 ticks already. Close enough …
      * https://minecraft.fandom.com/wiki/Bed#Sleeping
      */
-    private static final int SKIPPABLE_SLEEP_TICKS = 100;
+    public static final int SKIPPABLE_SLEEP_TICKS = 100;
     private static final int SKIP_PERCENTAGE_FALLBACK = 100;
 
     private final World world;
-    private final int skipPercentage;
+    private boolean warnIfPercentageUnconfigured = true;
+    private final ConfigHandler config;
     private final TCLogger logger;
     private final NightSkipScheduler skipScheduler;
 
     /**
      * In MC 1.13, when all players go to bed, the last player won't have to sleep as long for the
-     * night to be skipped. Therefore, if the required sleeping percentage is 100 %, we'll allow
-     * skipping right when the last person goes to bed - but only for 1.13.
+     * night to be skipped. Therefore, we'll allow skipping right when the last person goes to bed -
+     * but only if *everyone* is in bed and only for 1.13.
      */
     private final boolean allowAllAsleepInstantSkip;
 
     public NightSkipper(final TimeControl plugin, final World world) {
         this.world = world;
         this.logger = plugin.getTCLogger();
-        this.skipPercentage = getSkipPercentage(plugin.getConfigHandler());
+        this.config = plugin.getConfigHandler();
         this.skipScheduler = createSkipScheduler(plugin, world);
 
-        this.allowAllAsleepInstantSkip =
-                plugin.getServer().getBukkitVersion().startsWith("1.13") && skipPercentage == 100;
+        this.allowAllAsleepInstantSkip = plugin.getServer().getBukkitVersion().startsWith("1.13");
     }
 
     public void scheduleSkip() {
-        if (skipScheduler == null || skipThresholdMet(false)) {
+        if (allowAllAsleepInstantSkip && getSleepingRelevantPlayers().size() > 1
+                && getSleepingPercentage(false, 1) >= 100) {
+            skipNight(1);
+            return;
+        }
+
+        if (skipScheduler == null || skipThresholdMet(false, 0)) {
             return;
         }
 
@@ -65,16 +72,18 @@ public class NightSkipper {
         return null;
     }
 
-    private int getSkipPercentage(final ConfigHandler config) {
+    private int getSkipPercentage(final boolean warnIfUnconfigured) {
         if (!config.isPercentageEnabled(world)) {
             try {
                 return world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
             } catch (NoSuchFieldError e) {
-                logger.warn(
-                        "Failed to read game rule \"playersSleepingPercentage\" for world \"%s\"!",
-                        world.getName());
-                logger.warn("Please enable players-sleeping-percentage in the plugin config.");
-                logger.warn("Using fallback percentage of %d %%.", SKIP_PERCENTAGE_FALLBACK);
+                if (warnIfUnconfigured) {
+                    logger.warn(
+                            "Failed to read game rule \"playersSleepingPercentage\" for world \"%s\"!",
+                            world.getName());
+                    logger.warn("Please enable players-sleeping-percentage in the plugin config.");
+                    logger.warn("Using fallback percentage of %d %%.", SKIP_PERCENTAGE_FALLBACK);
+                }
 
                 return SKIP_PERCENTAGE_FALLBACK;
             }
@@ -83,29 +92,46 @@ public class NightSkipper {
         return config.getConfigPercentage(world);
     }
 
-    private boolean skipThresholdMet(final boolean onlyFullyRested) {
+    private List<Player> getSleepingRelevantPlayers() {
+        return world.getPlayers().stream().filter(player -> !player.isSleepingIgnored())
+                .collect(Collectors.toList());
+    }
+
+    private float getSleepingPercentage(final boolean onlyFullyRested,
+            final int sleepingCountOffset) {
+        final int sleepTickThreshold = onlyFullyRested ? SKIPPABLE_SLEEP_TICKS : 1;
+        final List<Player> players = getSleepingRelevantPlayers();
+        final int sleeping = (int) players.stream()
+                .filter((player) -> player.getSleepTicks() >= sleepTickThreshold).count()
+                + sleepingCountOffset;
+
+        return ((float) sleeping / players.size()) * 100;
+    }
+
+    private boolean skipThresholdMet(final boolean onlyFullyRested, final int sleepingCountOffset) {
+        final int skipPercentage = getSkipPercentage(warnIfPercentageUnconfigured);
+        warnIfPercentageUnconfigured = false;
+
         if (skipPercentage <= 0) {
             return true;
         } else if (skipPercentage > 100) {
             return false;
         }
 
-        final int sleepTickThreshold = onlyFullyRested ? SKIPPABLE_SLEEP_TICKS : 1;
-        final List<Player> players = world.getPlayers();
-        final int sleeping = (int) players.stream()
-                .filter((player) -> player.getSleepTicks() >= sleepTickThreshold).count();
-        final float sleepingPercentage = ((float) sleeping / players.size()) * 100;
-
-        return sleepingPercentage >= skipPercentage;
+        return getSleepingPercentage(onlyFullyRested, sleepingCountOffset) >= skipPercentage;
     }
 
     public void skipNight() {
+        skipNight(0);
+    }
+
+    private void skipNight(final int sleepingCountOffset) {
         if (!TimeUtil.sleepAllowed(world)) {
             return;
         }
 
-        if (!skipThresholdMet(!allowAllAsleepInstantSkip)) {
-            if (!skipThresholdMet(false)) {
+        if (!skipThresholdMet(!allowAllAsleepInstantSkip, sleepingCountOffset)) {
+            if (!skipThresholdMet(false, sleepingCountOffset)) {
                 cancelScheduledSkip();
             }
 
