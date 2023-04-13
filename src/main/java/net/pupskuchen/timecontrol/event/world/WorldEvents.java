@@ -20,7 +20,7 @@ public class WorldEvents implements Listener {
     }
 
     @EventHandler
-    public void onWorldLoad(WorldUnloadEvent event) {
+    public void onWorldUnload(WorldUnloadEvent event) {
         this.worldTimer.disableForWorld(event.getWorld());
     }
 }

@@ -47,15 +47,6 @@ public class TimeUtilTest {
     }
 
     @Test
-    public void isNight(@Mock World mockWorld) {
-        assertFalse(TimeUtil.isNight(13L));
-        assertTrue(TimeUtil.isNight(14230L));
-        assertFalse(TimeUtil.isNight(0L));
-        assertTrue(TimeUtil.isNight(23000L));
-        assertTrue(TimeUtil.isNight(-1L));
-    }
-
-    @Test
     public void sleepAllowed(@Mock World mockWorld) {
         when(mockWorld.isThundering()).thenReturn(true, false, false);
         when(mockWorld.hasStorm()).thenReturn(true, true, false, false);

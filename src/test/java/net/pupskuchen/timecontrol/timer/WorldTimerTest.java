@@ -1,4 +1,4 @@
-package net.pupskuchen.timecontrol.runnable;
+package net.pupskuchen.timecontrol.timer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -20,12 +20,11 @@ import be.seeseemelk.mockbukkit.WorldMock;
 import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
 import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigHandler;
-import net.pupskuchen.timecontrol.timer.WorldTimer;
 import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TickUtil;
 
 @ExtendWith(MockitoExtension.class)
-public class RunnableTest {
+public class WorldTimerTest {
     @Mock(name = "plugin")
     final TimeControl plugin = mock(TimeControl.class);
     @Mock
