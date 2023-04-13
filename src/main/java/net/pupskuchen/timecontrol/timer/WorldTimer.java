@@ -77,10 +77,6 @@ public class WorldTimer {
     private void startTimer() {
         if (runner != null) {
             return;
-        } else if (worldRatios.size() == 0) {
-            logger.warn("No worlds configured. Without any worlds, this plugin does nothing.");
-
-            return;
         }
 
         runner = new BukkitRunnable() {
@@ -96,10 +92,6 @@ public class WorldTimer {
     }
 
     private void stopTimer() {
-        if (runner == null) {
-            return;
-        }
-
         runner.cancel();
         runner = null;
 

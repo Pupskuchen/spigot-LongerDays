@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -17,30 +18,21 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.jupiter.MockitoExtension;
 import net.pupskuchen.timecontrol.TimeControl;
 import net.pupskuchen.timecontrol.config.ConfigHandler;
 import net.pupskuchen.timecontrol.util.TCLogger;
 import net.pupskuchen.timecontrol.util.TimeUtil;
 
-@ExtendWith(MockitoExtension.class)
 public class NightSkipperTest {
-    @Mock
     final TimeControl plugin = mock(TimeControl.class);
-    @Mock
     final ConfigHandler configManager = mock(ConfigHandler.class);
-    @Mock
     final TCLogger logger = mock(TCLogger.class);
-    @Mock
     final World world = mock(World.class);
-    @Mock
     final Server server = mock(Server.class);
 
-    List<List<Player>> players = List.of(this.getPlayers(0, 50, 0), this.getPlayers(100, 50, 0),
-            this.getPlayers(100, 100, 50), this.getPlayers(100, 100, 100));
+    List<List<Player>> players = List.of(getPlayers(0, 50, 0), getPlayers(100, 50, 0),
+            getPlayers(100, 100, 50), getPlayers(100, 100, 100));
 
     @BeforeEach
     public void setup() {
@@ -48,14 +40,15 @@ public class NightSkipperTest {
         when(plugin.getTCLogger()).thenReturn(logger);
         when(plugin.getConfigHandler()).thenReturn(configManager);
         when(plugin.getServer()).thenReturn(server);
+        when(world.isGameRule("playersSleepingPercentage")).thenReturn(true);
     }
 
-    private Player getPlayer(int sleepTicks) {
+    private static Player getPlayer(int sleepTicks) {
         return when(mock(Player.class).getSleepTicks()).thenReturn(sleepTicks).getMock();
     }
 
-    private List<Player> getPlayers(int... sleepTicks) {
-        return Arrays.stream(sleepTicks).mapToObj(asleep -> this.getPlayer(asleep))
+    public static List<Player> getPlayers(int... sleepTicks) {
+        return Arrays.stream(sleepTicks).mapToObj(asleep -> getPlayer(asleep))
                 .collect(Collectors.toList());
     };
 
@@ -147,6 +140,51 @@ public class NightSkipperTest {
             skipper.skipNight();
             verify(world, times(1)).setTime(123);
             verify(logger, times(1)).info("Skipped the night on world \"%s\".", "fancy-world");
+        }
+    }
+
+    @Test
+    public void doNotScheduleSkip() {
+        when(configManager.isPercentageEnabled(world)).thenReturn(true);
+        when(configManager.getConfigPercentage(world)).thenReturn( 50);
+        final NightSkipper skipper = new NightSkipper(plugin, world);
+        reset(world);
+
+        skipper.scheduleSkip();
+
+        verifyNoInteractions(logger);
+        verifyNoInteractions(world);
+    }
+
+    @Test
+    public void alwaysAllowSkipAt0Percentage() {
+        when(configManager.isPercentageEnabled(world)).thenReturn(false);
+        when(world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE)).thenReturn( 0);
+        when(world.getPlayers()).thenReturn(players.get(1));
+        when(world.getName()).thenReturn("fancy-world");
+        final NightSkipper skipper = new NightSkipper(plugin, world);
+
+        try(MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
+            mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
+            mock.when(() -> TimeUtil.getWakeTime(world)).thenReturn(123);
+            skipper.skipNight();
+            verify(world, times(1)).setTime(123);
+            verify(logger, times(1)).info("Skipped the night on world \"%s\".", "fancy-world");
+        }
+    }
+
+    @Test
+    public void neverAllowSkipAbove100Percentage() {
+        when(configManager.isPercentageEnabled(world)).thenReturn(false);
+        when(world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE)).thenReturn( 101);
+        when(world.getPlayers()).thenReturn(players.get(3));
+        final NightSkipper skipper = new NightSkipper(plugin, world);
+
+        try(MockedStatic<TimeUtil> mock = mockStatic(TimeUtil.class)) {
+            mock.when(() -> TimeUtil.sleepAllowed(world)).thenReturn(true);
+            skipper.skipNight();
+            verify(world, times(0)).setTime(anyLong());
+            verifyNoInteractions(logger);
         }
     }
 }
