@@ -42,7 +42,9 @@ public class TimeControl extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        worldTimer.disableAll();
+        if (worldTimer != null) {
+            worldTimer.disableAll();
+        }
         worldTimer = null;
         logger = null;
         config = null;

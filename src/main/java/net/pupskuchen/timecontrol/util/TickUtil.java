@@ -1,18 +1,21 @@
 package net.pupskuchen.timecontrol.util;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public final class TickUtil {
-    private TickUtil() {
+    private TickUtil() {}
+
+    private static double getTickRatio(final double ticks, final int baseTicks) {
+        return new BigDecimal(1.0 / (ticks / baseTicks)).setScale(6, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
-    private static double getTickRatio(final long ticks) {
-        return 1.0 / (ticks / 12000.0);
+    private static double convertMinsToTicks(final double minutes) {
+        return minutes * 60 * 20;
     }
 
-    private static long convertMinsToTicks(final int min) {
-        return min * 60 * 20;
-    }
-
-    public static double cycleMinsToTickRatio(final int min) {
-        return getTickRatio(convertMinsToTicks(min));
+    public static double cycleMinsToTickRatio(final Number minutes, final int baseTicks) {
+        return getTickRatio(convertMinsToTicks(minutes.doubleValue()), baseTicks);
     }
 }

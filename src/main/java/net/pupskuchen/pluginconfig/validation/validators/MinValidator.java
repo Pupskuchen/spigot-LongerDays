@@ -3,9 +3,9 @@ package net.pupskuchen.pluginconfig.validation.validators;
 import net.pupskuchen.pluginconfig.annotations.validation.Min;
 import net.pupskuchen.pluginconfig.validation.AnnotationValidator;
 
-public class MinValidator implements AnnotationValidator<Min, Integer> {
+public class MinValidator implements AnnotationValidator<Min, Number> {
 
-    private Integer minValue;
+    private Number minValue;
 
     @Override
     public void initialize(final Min annotation) {
@@ -13,11 +13,12 @@ public class MinValidator implements AnnotationValidator<Min, Integer> {
     }
 
     @Override
-    public boolean isValid(final Integer value) {
+    public boolean isValid(final Number value) {
         if (value == null) {
             return true;
         }
 
-        return value.compareTo(minValue) >= 0;
+        return Double.valueOf(value.doubleValue())
+                .compareTo(Double.valueOf(minValue.doubleValue())) >= 0;
     }
 }
