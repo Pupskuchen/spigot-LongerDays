@@ -15,6 +15,7 @@ It originally started as a fork of [foncused's "LongerDays"](https://github.com/
 1. Copy the `TimeControl.jar` file into your server's `plugins` directory
 2. Start your server
 3. Edit the [config.yml](src/main/resources/config.yml) in `plugins/TimeControl/`
+4. Restart (or reload) your server
 
 ## Configuration
 
