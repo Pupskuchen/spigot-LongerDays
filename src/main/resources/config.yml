@@ -1,15 +1,20 @@
 # ${project.name} ${project.version}
+# Check out the readme for more configuration details:
+# https://github.com/Pupskuchen/spigot-TimeControl#configuration
 
 # This defines the global/default configuration
 # that gets used by every world defined in "worlds"
-# unless you override some or all settings for
-# certain worlds (or all, if you want).
+# unless you override some or all settings for certain worlds.
 defaults:
   durations:
-    # Day duration in minutes
-    day: 20
-    # Night duration in minutes
-    night: 5
+    # Daytime duration in minutes
+    day: 10
+    # Nighttime duration in minutes
+    night: 8
+    # Make sunset pass at the same speed as the night
+    sunset: "night"
+    # Make sunrise pass at the same speed as the night
+    sunrise: "night"
   # With night-skipping enabled, players can skip the night by sleeping.
   # This functionality honors the "playersSleepingPercentage" game rule.
   night-skipping:

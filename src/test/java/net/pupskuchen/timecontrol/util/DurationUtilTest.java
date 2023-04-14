@@ -38,7 +38,7 @@ public class DurationUtilTest {
 
         assertEquals(10, normalized.day);
         assertEquals(20, normalized.night);
-        assertEquals(10d * ((double) TimeUtil.SUNSET.duration() / TimeUtil.DAYTIME.duration()),
+        assertEquals(20d * ((double) TimeUtil.SUNSET.duration() / TimeUtil.NIGHTTIME.duration()),
                 normalized.sunset);
         assertEquals(20d * ((double) TimeUtil.SUNRISE.duration() / TimeUtil.NIGHTTIME.duration()),
                 normalized.sunrise);
@@ -47,12 +47,12 @@ public class DurationUtilTest {
     @Test
     public void useFallbackForInvalidStrings() {
         final Durations<Integer, String> durations =
-                new Durations<Integer, String>(10, 20, "oops", null);
+                new Durations<Integer, String>(10, 20, "oops", "oh no");
         final Durations<Integer, Double> normalized = DurationUtil.normalize(durations);
 
         assertEquals(10, normalized.day);
         assertEquals(20, normalized.night);
-        assertEquals(10d * ((double) TimeUtil.SUNSET.duration() / TimeUtil.DAYTIME.duration()),
+        assertEquals(20d * ((double) TimeUtil.SUNSET.duration() / TimeUtil.NIGHTTIME.duration()),
                 normalized.sunset);
         assertEquals(20d * ((double) TimeUtil.SUNRISE.duration() / TimeUtil.NIGHTTIME.duration()),
                 normalized.sunrise);

@@ -5,10 +5,11 @@ import net.pupskuchen.timecontrol.config.entity.Durations;
 public final class DurationUtil {
     private DurationUtil() {}
 
-    public static <T extends Number> Durations<T, Double> normalize(final Durations<T, ?> durations) {
+    public static <T extends Number> Durations<T, Double> normalize(
+            final Durations<T, ?> durations) {
         return new Durations<T, Double>(durations.day, durations.night,
                 normalizeValue(durations.sunset, durations,
-                        adjustDuration(durations.day, TimeUtil.SUNSET, TimeUtil.DAYTIME)),
+                        adjustDuration(durations.night, TimeUtil.SUNSET, TimeUtil.NIGHTTIME)),
                 normalizeValue(durations.sunrise, durations,
                         adjustDuration(durations.night, TimeUtil.SUNRISE, TimeUtil.NIGHTTIME)));
     }
