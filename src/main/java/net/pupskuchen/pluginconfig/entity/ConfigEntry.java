@@ -1,7 +1,7 @@
 package net.pupskuchen.pluginconfig.entity;
 
-import java.util.Map;
 import org.bukkit.configuration.ConfigurationSection;
+import net.pupskuchen.pluginconfig.utils.TypeUtils;
 
 public class ConfigEntry<T> extends ConfigItem<T> {
 
@@ -22,15 +22,26 @@ public class ConfigEntry<T> extends ConfigItem<T> {
             return result;
         }
 
-        Map<String, Object> value = config.getConfigurationSection(name).getValues(false);
-
-        if (value.size() == 0) {
-            value = config.getDefaultSection().getConfigurationSection(name).getValues(false);
+        if (TypeUtils.isPrimitiveOrWrapper(type)) {
+            return getFallbackValue(fallback);
         }
 
-        return attemptDeserialization(value,
-                (fallback != null && fallback.getClass().isAssignableFrom(type))
-                        ? type.cast(fallback)
-                        : null);
+        ConfigurationSection section = config.getConfigurationSection(name);
+
+        if (section == null || section.getValues(false).size() == 0) {
+            section = config.getDefaultSection().getConfigurationSection(name);
+        }
+
+        if (section == null) {
+            return getFallbackValue(fallback);
+        }
+
+        return attemptDeserialization(section.getValues(false), getFallbackValue(fallback));
+    }
+
+    private T getFallbackValue(Object fallback) {
+        return (fallback != null && fallback.getClass().isAssignableFrom(type))
+                ? type.cast(fallback)
+                : null;
     }
 }
