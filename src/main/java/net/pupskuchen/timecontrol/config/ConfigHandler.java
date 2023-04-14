@@ -26,6 +26,8 @@ public class ConfigHandler {
     private final TimeControl plugin;
     private final PluginConfig pluginConfig;
 
+    private final TimeControlConfig fallbackConfig = getFallbacks();
+
     private boolean debug = false;
     private TimeControlConfig defaultConfig;
     private Map<String, WorldTimeControlConfig> worldConfigs = new HashMap<>();
@@ -41,7 +43,7 @@ public class ConfigHandler {
     }
 
     public void validate() {
-        defaultConfig = pluginConfig.get(DEFAULTS);
+        defaultConfig = pluginConfig.get(DEFAULTS, fallbackConfig);
 
         worldConfigs = loadWorlds(pluginConfig.get(WORLDS, defaultConfig));
     }
@@ -96,5 +98,10 @@ public class ConfigHandler {
 
         return worldConfigs.stream()
                 .collect(Collectors.toMap(WorldTimeControlConfig::getName, config -> config));
+    }
+
+    private TimeControlConfig getFallbacks() {
+        return new TimeControlConfig(new Durations<Double, Void>(10d, 500d / 60, null, null), true,
+                false, 100);
     }
 }

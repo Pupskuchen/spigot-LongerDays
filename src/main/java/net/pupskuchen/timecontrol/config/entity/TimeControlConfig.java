@@ -17,6 +17,17 @@ public class TimeControlConfig {
     @Serialize("players-sleeping-percentage.percentage")
     protected Integer playersSleepingPercentage;
 
+    public TimeControlConfig() {}
+
+    public TimeControlConfig(final Durations<Double, ?> durations,
+            final boolean nightSkippingEnabled, final boolean playersSleepingPercentageEnabled,
+            final int playersSleepingPercentage) {
+        setDurations(durations);
+        this.nightSkippingEnabled = nightSkippingEnabled;
+        this.playersSleepingPercentageEnabled = playersSleepingPercentageEnabled;
+        this.playersSleepingPercentage = playersSleepingPercentage;
+    }
+
     public Durations<Double, ?> getDurations() {
         return durations;
     }
